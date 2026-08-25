@@ -974,47 +974,48 @@
             width: 100%;
             height: auto;
             object-fit: contain;
-            filter: brightness(0) invert(1) drop-shadow(0 0 35px rgba(0, 240, 255, 0.45));
-            opacity: 0.13;
+            filter: brightness(0) invert(1);
+            opacity: 0.11;
             pointer-events: none;
             user-select: none;
+            will-change: opacity;
         }
 
-        /* Custom Esports Cyber Cursor */
-        .custom-cursor-dot {
+        /* High-Performance GPU-Accelerated Esports Cyber Cursor */
+        .custom-cursor-dot, .custom-cursor-ring {
             position: fixed;
             top: 0;
             left: 0;
+            pointer-events: none;
+            will-change: transform;
+            contain: layout paint;
+            transform: translate3d(-100px, -100px, 0);
+        }
+
+        .custom-cursor-dot {
             width: 6px;
             height: 6px;
             background: var(--neon-cyan);
             border-radius: 50%;
-            pointer-events: none;
             z-index: 999999;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 0 10px var(--neon-cyan);
+            box-shadow: 0 0 8px var(--neon-cyan);
         }
 
         .custom-cursor-ring {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 28px;
-            height: 28px;
+            width: 26px;
+            height: 26px;
             border: 1.5px solid var(--neon-cyan);
             border-radius: 50%;
-            pointer-events: none;
             z-index: 999998;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 0 12px rgba(0, 240, 255, 0.35);
-            transition: width 0.18s ease, height 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.35);
+            transition: width 0.12s ease-out, height 0.12s ease-out, border-color 0.15s ease, box-shadow 0.15s ease;
         }
 
         .custom-cursor-ring.active {
-            width: 44px;
-            height: 44px;
+            width: 38px;
+            height: 38px;
             border-color: var(--neon-magenta);
-            box-shadow: 0 0 20px rgba(176, 38, 255, 0.6);
+            box-shadow: 0 0 16px rgba(176, 38, 255, 0.6);
         }
 
         /* ==========================================
@@ -1258,9 +1259,258 @@
             opacity: 1;
             transform: scale(1);
         }
+
+        /* ==========================================
+           CUSTOM THEMED ESPORTS HUD MODAL
+           ========================================== */
+        .hud-modal-overlay {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(4, 5, 10, 0.84);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 99999999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.18s;
+        }
+
+        .hud-modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .hud-modal-card {
+            background: #0E111D;
+            border: 1.5px solid var(--neon-cyan);
+            box-shadow: 0 0 35px rgba(0, 240, 255, 0.28), 0 0 15px rgba(176, 38, 255, 0.2);
+            clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+            width: 100%;
+            max-width: 440px;
+            padding: 28px 24px 24px 24px;
+            position: relative;
+            transform: scale(0.92) translateY(10px);
+            transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .hud-modal-overlay.active .hud-modal-card {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-secondary);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
+            transition: all 0.15s ease;
+        }
+
+        .modal-close-btn:hover {
+            background: rgba(255, 0, 85, 0.2);
+            border-color: var(--thermal-crimson);
+            color: var(--thermal-crimson);
+            box-shadow: 0 0 10px var(--thermal-crimson-glow);
+        }
+
+        .modal-icon-badge {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: rgba(0, 240, 255, 0.12);
+            border: 1.5px solid var(--neon-cyan);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .modal-icon-badge.magenta {
+            background: rgba(176, 38, 255, 0.12);
+            border-color: var(--neon-magenta);
+            box-shadow: 0 0 20px var(--neon-magenta-glow);
+        }
+
+        .modal-icon-badge svg {
+            width: 26px;
+            height: 26px;
+            fill: var(--neon-cyan);
+        }
+
+        .modal-icon-badge.magenta svg {
+            fill: var(--neon-magenta);
+        }
+
+        .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: #FFFFFF;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            text-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+        }
+
+        .modal-body {
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 22px;
+            width: 100%;
+        }
+
+        .modal-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 14px;
+            text-align: left;
+        }
+
+        .modal-stat-box {
+            background: #141828;
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            padding: 10px 12px;
+            clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+        }
+
+        .modal-stat-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 9px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .modal-stat-val {
+            font-family: 'Orbitron', monospace;
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .modal-stat-val.cyan { color: var(--neon-cyan); text-shadow: 0 0 8px var(--neon-cyan-glow); }
+        .modal-stat-val.green { color: var(--neon-green); text-shadow: 0 0 8px var(--neon-green-glow); }
+        .modal-stat-val.amber { color: var(--electric-amber); }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .btn-modal-primary {
+            flex: 1;
+            padding: 13px 18px;
+            background: var(--neon-cyan);
+            color: #07080E;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            border: none;
+            cursor: pointer;
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+            box-shadow: 0 0 18px rgba(0, 240, 255, 0.45);
+            transition: all 0.15s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-modal-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 26px var(--neon-cyan);
+            background: #FFFFFF;
+        }
+
+        .btn-modal-secondary {
+            padding: 13px 18px;
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+            transition: all 0.15s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-modal-secondary:hover {
+            border-color: var(--neon-magenta);
+            color: var(--neon-magenta);
+            background: rgba(176, 38, 255, 0.1);
+            box-shadow: 0 0 12px var(--neon-magenta-glow);
+        }
+
+        .modal-input {
+            width: 100%;
+            background: #090B14;
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            color: var(--neon-cyan);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            padding: 10px 14px;
+            clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+            outline: none;
+            margin-top: 10px;
+        }
+
+        .modal-input:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 12px var(--neon-cyan-glow);
+        }
+
+        .modal-toast {
+            margin-top: 10px;
+            font-family: 'Orbitron', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--neon-green);
+            text-shadow: 0 0 8px var(--neon-green-glow);
+            display: none;
+        }
     </style>
 </head>
 <body>
+
+    <!-- Custom Esports HUD Modal System -->
+    <div id="hudModalOverlay" class="hud-modal-overlay" onclick="onModalBackdropClick(event)">
+        <div class="hud-modal-card" id="hudModalCard">
+            <button class="modal-close-btn" onclick="closeHudModal()" aria-label="Close modal">✕</button>
+            <div class="modal-icon-badge" id="modalIconBadge">
+                <svg id="modalIconSvg" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="modal-title" id="modalTitle">MODAL TITLE</div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-actions" id="modalActions"></div>
+            <div class="modal-toast" id="modalToast">✓ REPORT LINK COPIED TO CLIPBOARD</div>
+        </div>
+    </div>
 
     <!-- Custom Esports Cyber Cursor -->
     <div class="custom-cursor-dot" id="cursorDot"></div>
@@ -1491,25 +1741,181 @@
                     if (splashScreen) splashScreen.style.display = 'none';
                 }, 650);
             }, 2200);
-
-            // Custom Esports Cyber Cursor Tracking
-            const cursorDot = document.getElementById('cursorDot');
-            const cursorRing = document.getElementById('cursorRing');
-
-            if (cursorDot && cursorRing) {
-                document.addEventListener('mousemove', (e) => {
-                    cursorDot.style.left = `${e.clientX}px`;
-                    cursorDot.style.top = `${e.clientY}px`;
-                    cursorRing.style.left = `${e.clientX}px`;
-                    cursorRing.style.top = `${e.clientY}px`;
-                });
-
-                document.querySelectorAll('button, input, .tab-btn, .hud-card, .draggable-hud-pill, .stat-highlight-card, .btn-preset').forEach(el => {
-                    el.addEventListener('mouseenter', () => cursorRing.classList.add('active'));
-                    el.addEventListener('mouseleave', () => cursorRing.classList.remove('active'));
-                });
-            }
         });
+
+        // ==========================================
+        // GPU-ACCELERATED ZERO-LAG CYBER CURSOR
+        // ==========================================
+        const cursorDot = document.getElementById('cursorDot');
+        const cursorRing = document.getElementById('cursorRing');
+        let mouseX = -100, mouseY = -100;
+        let ringX = -100, ringY = -100;
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        }, { passive: true });
+
+        function renderCursor() {
+            if (cursorDot && cursorRing) {
+                cursorDot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0) translate(-50%, -50%)`;
+                ringX += (mouseX - ringX) * 0.45;
+                ringY += (mouseY - ringY) * 0.45;
+                cursorRing.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
+            }
+            requestAnimationFrame(renderCursor);
+        }
+        requestAnimationFrame(renderCursor);
+
+        // Global Delegated Hover (Zero DOM querying overhead)
+        document.addEventListener('mouseover', (e) => {
+            if (e.target.closest('button, input, a, .tab-btn, .hud-card, .draggable-hud-pill, .stat-highlight-card, .btn-preset, .badge-backend')) {
+                cursorRing.classList.add('active');
+            } else {
+                cursorRing.classList.remove('active');
+            }
+        }, { passive: true });
+
+        // ==========================================
+        // CUSTOM THEMED ESPORTS HUD MODAL CONTROLLER
+        // ==========================================
+        const modalOverlay = document.getElementById('hudModalOverlay');
+        const modalIconBadge = document.getElementById('modalIconBadge');
+        const modalIconSvg = document.getElementById('modalIconSvg');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+        const modalActions = document.getElementById('modalActions');
+        const modalToast = document.getElementById('modalToast');
+
+        function openHudModal({ iconType, title, bodyHtml, actionsHtml }) {
+            if (!modalOverlay) return;
+            
+            if (iconType === 'magenta') {
+                modalIconBadge.className = 'modal-icon-badge magenta';
+                modalIconSvg.innerHTML = '<path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92z"/>';
+            } else {
+                modalIconBadge.className = 'modal-icon-badge';
+                modalIconSvg.innerHTML = '<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>';
+            }
+
+            modalTitle.textContent = title;
+            modalBody.innerHTML = bodyHtml;
+            modalActions.innerHTML = actionsHtml;
+            modalToast.style.display = 'none';
+
+            modalOverlay.classList.add('active');
+        }
+
+        function closeHudModal() {
+            if (modalOverlay) modalOverlay.classList.remove('active');
+        }
+
+        function onModalBackdropClick(e) {
+            if (e.target === modalOverlay) closeHudModal();
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeHudModal();
+        });
+
+        // 1. "Adjust Settings" Modal (Replaces native alert)
+        function adjustSettingsFromAlert() {
+            alertPopup.classList.remove('visible');
+            setPreset('cool');
+            avoidedCount++;
+
+            openHudModal({
+                iconType: 'cyan',
+                title: 'THERMAL OPTIMIZATION APPLIED',
+                bodyHtml: `
+                    <div>Refresh rate adjusted to <strong>90Hz</strong> and background rendering throttled.</div>
+                    <div style="margin-top:12px; color:var(--neon-green); font-family:'Orbitron', monospace; font-size:12px; font-weight:700;">
+                        ✓ THERMAL THROTTLING AVOIDED (+1)
+                    </div>
+                `,
+                actionsHtml: `
+                    <button class="btn-modal-primary" onclick="closeHudModal()">DONE</button>
+                `
+            });
+        }
+
+        // 2. "Share Report" Modal (Replaces native alert)
+        function shareReportCard() {
+            const totalSec = Math.max(1, sessionSeconds);
+            const efficiency = Math.min(99.4, Math.max(45.0, (lowRiskSeconds / totalSec) * 100));
+            const durationMin = Math.max(1, Math.floor(sessionSeconds / 60));
+            const maxTemp = telemetryHistory.length ? Math.max(...telemetryHistory.map(p => p.temp)) : 43.0;
+            const avgFps = telemetryHistory.length ? (telemetryHistory.reduce((a,b) => a + b.fps, 0) / telemetryHistory.length) : 58.0;
+
+            openHudModal({
+                iconType: 'magenta',
+                title: 'SESSION REPORT READY',
+                bodyHtml: `
+                    <div>Performance summary verified on iQOO Performance Architecture.</div>
+                    <div class="modal-stats-grid">
+                        <div class="modal-stat-box">
+                            <div class="modal-stat-label">SESSION TIME</div>
+                            <div class="modal-stat-val cyan">${durationMin} min</div>
+                        </div>
+                        <div class="modal-stat-box">
+                            <div class="modal-stat-label">EFFICIENCY</div>
+                            <div class="modal-stat-val green">${efficiency.toFixed(1)}%</div>
+                        </div>
+                        <div class="modal-stat-box">
+                            <div class="modal-stat-label">EVENTS AVOIDED</div>
+                            <div class="modal-stat-val green">${avoidedCount} Avoided</div>
+                        </div>
+                        <div class="modal-stat-box">
+                            <div class="modal-stat-label">MAX TEMP / FPS</div>
+                            <div class="modal-stat-val amber">${Math.round(maxTemp)}°C · ${Math.round(avgFps)} FPS</div>
+                        </div>
+                    </div>
+                `,
+                actionsHtml: `
+                    <button class="btn-modal-primary" onclick="copyReportLink()">📋 COPY REPORT LINK</button>
+                    <button class="btn-modal-secondary" onclick="closeHudModal()">CLOSE</button>
+                `
+            });
+        }
+
+        function copyReportLink() {
+            const shareUrl = window.location.href;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    modalToast.style.display = 'block';
+                    setTimeout(() => { modalToast.style.display = 'none'; }, 3000);
+                });
+            } else {
+                modalToast.style.display = 'block';
+            }
+        }
+
+        // 3. Backend API URL Config Modal (Replaces native prompt)
+        function promptBackendUrl() {
+            const current = backendApiUrl || 'https://thermal-guardian-api.onrender.com';
+            openHudModal({
+                iconType: 'magenta',
+                title: 'SYNC RENDER BACKEND',
+                bodyHtml: `
+                    <div>Enter your live Render Cloud Web Service URL for remote telemetry sync:</div>
+                    <input type="text" id="inputBackendUrl" class="modal-input" value="${current}" placeholder="https://thermal-guardian-api.onrender.com">
+                `,
+                actionsHtml: `
+                    <button class="btn-modal-primary" onclick="saveBackendUrlFromModal()">SAVE CONFIG</button>
+                    <button class="btn-modal-secondary" onclick="closeHudModal()">CANCEL</button>
+                `
+            });
+        }
+
+        function saveBackendUrlFromModal() {
+            const input = document.getElementById('inputBackendUrl');
+            if (input) {
+                backendApiUrl = input.value.trim().replace(/\/+$/, '');
+                localStorage.setItem('RENDER_BACKEND_URL', backendApiUrl);
+                closeHudModal();
+                checkBackendConnection();
+            }
+        }
 
         // ==========================================
         // RENDER BACKEND API CONNECTOR
@@ -1545,7 +1951,7 @@
                     return;
                 }
             } catch (err) {
-                // Keep local predictive engine active
+                // Fallback to local engine
             }
 
             badge.classList.add('connected');
@@ -1553,23 +1959,12 @@
             isBackendConnected = false;
         }
 
-        function promptBackendUrl() {
-            const current = backendApiUrl || 'https://thermal-guardian-api.onrender.com';
-            const userUrl = prompt('Enter your Render Backend URL (e.g. https://thermal-guardian-api.onrender.com):', current);
-            if (userUrl !== null) {
-                backendApiUrl = userUrl.trim().replace(/\/+$/, '');
-                localStorage.setItem('RENDER_BACKEND_URL', backendApiUrl);
-                checkBackendConnection();
-            }
-        }
-
-        // Check backend on load and keep polling every 12 seconds
         setTimeout(checkBackendConnection, 1000);
         setInterval(() => {
-            if (!isBackendConnected) {
+            if (!isBackendConnected && backendApiUrl) {
                 checkBackendConnection();
             }
-        }, 12000);
+        }, 15000);
 
         // ==========================================
         // STATE & TELEMETRY ENGINE
@@ -1595,11 +1990,13 @@
         const logBox = document.getElementById('logBox');
         const riskBadge = document.getElementById('riskBadge');
 
-        // Draggable HUD Pill
+        // Draggable HUD Pill with RequestAnimationFrame
         const hudPill = document.getElementById('hudPill');
         let isDragging = false;
         let dragOffsetX = 0;
         let dragOffsetY = 0;
+        let hudTargetX = 14;
+        let hudTargetY = 48;
 
         hudPill.addEventListener('mousedown', (e) => {
             if (e.target.closest('button')) return;
@@ -1608,17 +2005,15 @@
             dragOffsetY = e.clientY - hudPill.offsetTop;
         });
 
-        document.addEventListener('mousemove', (e) => {
+        window.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
-            let newX = e.clientX - dragOffsetX;
-            let newY = e.clientY - dragOffsetY;
-            newX = Math.max(10, Math.min(newX, 390 - hudPill.offsetWidth - 10));
-            newY = Math.max(40, Math.min(newY, 750 - hudPill.offsetHeight - 10));
-            hudPill.style.left = newX + 'px';
-            hudPill.style.top = newY + 'px';
-        });
+            hudTargetX = Math.max(8, Math.min(e.clientX - dragOffsetX, 390 - hudPill.offsetWidth - 8));
+            hudTargetY = Math.max(38, Math.min(e.clientY - dragOffsetY, 750 - hudPill.offsetHeight - 8));
+            hudPill.style.left = hudTargetX + 'px';
+            hudPill.style.top = hudTargetY + 'px';
+        }, { passive: true });
 
-        document.addEventListener('mouseup', () => { isDragging = false; });
+        window.addEventListener('mouseup', () => { isDragging = false; });
 
         // Touch drag support
         hudPill.addEventListener('touchstart', (e) => {
@@ -1627,20 +2022,18 @@
             const touch = e.touches[0];
             dragOffsetX = touch.clientX - hudPill.offsetLeft;
             dragOffsetY = touch.clientY - hudPill.offsetTop;
-        });
+        }, { passive: true });
 
-        document.addEventListener('touchmove', (e) => {
+        window.addEventListener('touchmove', (e) => {
             if (!isDragging) return;
             const touch = e.touches[0];
-            let newX = touch.clientX - dragOffsetX;
-            let newY = touch.clientY - dragOffsetY;
-            newX = Math.max(10, Math.min(newX, 390 - hudPill.offsetWidth - 10));
-            newY = Math.max(40, Math.min(newY, 750 - hudPill.offsetHeight - 10));
-            hudPill.style.left = newX + 'px';
-            hudPill.style.top = newY + 'px';
-        });
+            hudTargetX = Math.max(8, Math.min(touch.clientX - dragOffsetX, 390 - hudPill.offsetWidth - 8));
+            hudTargetY = Math.max(38, Math.min(touch.clientY - dragOffsetY, 750 - hudPill.offsetHeight - 8));
+            hudPill.style.left = hudTargetX + 'px';
+            hudPill.style.top = hudTargetY + 'px';
+        }, { passive: true });
 
-        document.addEventListener('touchend', () => { isDragging = false; });
+        window.addEventListener('touchend', () => { isDragging = false; });
 
         // ==========================================
         // 1-SECOND SAMPLING LOOP & PREDICTOR
@@ -1650,7 +2043,7 @@
             
             // Subtle frame jitter
             if (!isSpikeSimulated) {
-                currentFps = Math.max(55, Math.min(60, currentFps + (Math.random() * 2 - 1)));
+                currentFps = Math.max(55, Math.min(60, currentFps + (Math.random() * 1.6 - 0.8)));
             }
 
             // Store Telemetry point
@@ -1659,7 +2052,7 @@
                 temp: currentTemp,
                 fps: currentFps
             });
-            if (telemetryHistory.length > 60) telemetryHistory.shift();
+            if (telemetryHistory.length > 45) telemetryHistory.shift();
 
             // Calculate linear slope over last 10 samples
             let slopePer10s = 0;
@@ -1697,16 +2090,19 @@
                 lowRiskSeconds++;
             }
 
-            // Update HUD Pill
+            // Update HUD Pill (Direct text update)
             hudTempText.textContent = `${Math.round(currentTemp)}°C`;
             hudFpsText.textContent = `${Math.round(currentFps)} FPS`;
             hudBatteryText.textContent = `${batteryPct}%`;
 
-            // Append to Log Box
+            // Append to Log Box (Capped to max 12 entries to eliminate DOM lag)
             const logEntry = document.createElement('div');
             logEntry.className = `log-entry ${currentRisk.toLowerCase()}`;
             logEntry.textContent = `[${formatTime(sessionSeconds)}] Temp: ${currentTemp.toFixed(1)}°C · FPS: ${Math.round(currentFps)} · Slope: ${slopePer10s > 0 ? '+' : ''}${slopePer10s.toFixed(2)}°C/10s -> ${currentRisk}`;
             logBox.appendChild(logEntry);
+            while (logBox.children.length > 12) {
+                logBox.removeChild(logBox.firstChild);
+            }
             logBox.scrollTop = logBox.scrollHeight;
 
         }, 1000);
@@ -1763,13 +2159,6 @@
 
         function dismissAlert() {
             alertPopup.classList.remove('visible');
-        }
-
-        function adjustSettingsFromAlert() {
-            alertPopup.classList.remove('visible');
-            setPreset('cool');
-            avoidedCount++;
-            alert('Settings Adjusted! Refresh rate capped to 90Hz & resolution lowered. Thermal stress relieved.');
         }
 
         function onStopSessionFromOverlay() {
@@ -1864,10 +2253,6 @@
             ctx.fill();
         }
 
-        function shareReportCard() {
-            alert('🛡️ Gaming Report Card PNG exported successfully! Ready for sharing.');
-        }
-
         // ==========================================
         // GAME CANVAS 60FPS BACKGROUND ANIMATION
         // ==========================================
@@ -1909,7 +2294,7 @@
 
             // Engine Trail
             gctx.shadowColor = '#00F0FF';
-            gctx.shadowBlur = 12;
+            gctx.shadowBlur = 10;
             gctx.fillStyle = '#00F0FF';
             gctx.beginPath();
             gctx.arc(shipX, shipY + 18, 6 + Math.sin(time * 5) * 2, 0, Math.PI * 2);
@@ -1917,7 +2302,7 @@
 
             // Ship Body
             gctx.shadowColor = '#B026FF';
-            gctx.shadowBlur = 10;
+            gctx.shadowBlur = 8;
             gctx.fillStyle = '#B026FF';
             gctx.beginPath();
             gctx.moveTo(shipX, shipY - 22);
