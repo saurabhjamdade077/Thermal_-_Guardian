@@ -169,6 +169,50 @@
             animation: pulseDot 1.2s infinite alternate;
         }
 
+        .badge-backend {
+            font-family: 'Orbitron', monospace;
+            background: rgba(176, 38, 255, 0.12);
+            color: var(--neon-magenta);
+            border: 1px solid rgba(176, 38, 255, 0.5);
+            padding: 5px 12px;
+            clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            box-shadow: 0 0 12px rgba(176, 38, 255, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .badge-backend:hover {
+            background: rgba(176, 38, 255, 0.25);
+            box-shadow: 0 0 18px var(--neon-magenta-glow);
+        }
+
+        .backend-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--neon-magenta);
+            box-shadow: 0 0 8px var(--neon-magenta);
+            animation: pulseDot 1.2s infinite alternate;
+        }
+
+        .badge-backend.connected {
+            background: rgba(0, 240, 255, 0.12);
+            color: var(--neon-cyan);
+            border-color: rgba(0, 240, 255, 0.6);
+            box-shadow: 0 0 14px rgba(0, 240, 255, 0.3);
+        }
+
+        .badge-backend.connected .backend-dot {
+            background: var(--neon-cyan);
+            box-shadow: 0 0 8px var(--neon-cyan);
+        }
+
         @keyframes pulseDot {
             from { opacity: 0.4; transform: scale(0.8); }
             to { opacity: 1; transform: scale(1.3); }
@@ -936,6 +980,43 @@
             user-select: none;
         }
 
+        /* Custom Esports Cyber Cursor */
+        .custom-cursor-dot {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 6px;
+            background: var(--neon-cyan);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 999999;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        .custom-cursor-ring {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 28px;
+            height: 28px;
+            border: 1.5px solid var(--neon-cyan);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 999998;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.35);
+            transition: width 0.18s ease, height 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .custom-cursor-ring.active {
+            width: 44px;
+            height: 44px;
+            border-color: var(--neon-magenta);
+            box-shadow: 0 0 20px rgba(176, 38, 255, 0.6);
+        }
+
         /* ==========================================
            ESPORTS CONSOLE BOOT SPLASH SCREEN
            ========================================== */
@@ -1181,6 +1262,10 @@
 </head>
 <body>
 
+    <!-- Custom Esports Cyber Cursor -->
+    <div class="custom-cursor-dot" id="cursorDot"></div>
+    <div class="custom-cursor-ring" id="cursorRing"></div>
+
     <!-- Full-Screen Esports Console Boot Splash Screen -->
     <div id="splashScreen" class="splash-overlay">
         <div class="splash-content">
@@ -1216,12 +1301,18 @@
 
         <!-- Top Header -->
         <header class="app-header">
-        <div class="brand-logo">
-            <svg viewBox="0 0 24 24"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm0 4a4.5 4.5 0 0 1 4.5 4.5c0 2.12-1.45 3.9-3.4 4.36L12 18l-1.1-3.14A4.502 4.502 0 0 1 7.5 10.5 4.5 4.5 0 0 1 12 6z"/></svg>
-            <span>Thermal <span>&</span> Guardian</span>
-        </div>
-        <div class="badge-live">ESPORTS TELEMETRY HUD ACTIVE</div>
-    </header>
+            <div class="brand-logo">
+                <svg viewBox="0 0 24 24"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm0 4a4.5 4.5 0 0 1 4.5 4.5c0 2.12-1.45 3.9-3.4 4.36L12 18l-1.1-3.14A4.502 4.502 0 0 1 7.5 10.5 4.5 4.5 0 0 1 12 6z"/></svg>
+                <span>Thermal <span>&</span> Guardian</span>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <div class="badge-backend" id="backendBadge" title="Click to configure Render Backend API URL" onclick="promptBackendUrl()">
+                    <span class="backend-dot" id="backendDot"></span>
+                    <span id="backendStatusText">RENDER API: LOCAL</span>
+                </div>
+                <div class="badge-live">VERCEL FRONTEND ACTIVE</div>
+            </div>
+        </header>
 
     <!-- Studio Layout -->
     <div class="studio-container">
@@ -1400,7 +1491,68 @@
                     if (splashScreen) splashScreen.style.display = 'none';
                 }, 650);
             }, 2200);
+
+            // Custom Esports Cyber Cursor Tracking
+            const cursorDot = document.getElementById('cursorDot');
+            const cursorRing = document.getElementById('cursorRing');
+
+            if (cursorDot && cursorRing) {
+                document.addEventListener('mousemove', (e) => {
+                    cursorDot.style.left = `${e.clientX}px`;
+                    cursorDot.style.top = `${e.clientY}px`;
+                    cursorRing.style.left = `${e.clientX}px`;
+                    cursorRing.style.top = `${e.clientY}px`;
+                });
+
+                document.querySelectorAll('button, input, .tab-btn, .hud-card, .draggable-hud-pill, .stat-highlight-card, .btn-preset').forEach(el => {
+                    el.addEventListener('mouseenter', () => cursorRing.classList.add('active'));
+                    el.addEventListener('mouseleave', () => cursorRing.classList.remove('active'));
+                });
+            }
         });
+
+        // ==========================================
+        // RENDER BACKEND API CONNECTOR
+        // ==========================================
+        let backendApiUrl = localStorage.getItem('RENDER_BACKEND_URL') || '';
+        let isBackendConnected = false;
+
+        async function checkBackendConnection() {
+            const badge = document.getElementById('backendBadge');
+            const text = document.getElementById('backendStatusText');
+            if (!badge || !text) return;
+
+            const targetUrl = backendApiUrl || 'http://localhost:5000';
+            try {
+                const start = performance.now();
+                const res = await fetch(`${targetUrl}/health`, { method: 'GET', signal: AbortSignal.timeout(2500) });
+                if (res.ok) {
+                    const elapsed = Math.round(performance.now() - start);
+                    badge.classList.add('connected');
+                    text.innerText = `RENDER API: ONLINE (${elapsed}ms)`;
+                    isBackendConnected = true;
+                    return;
+                }
+            } catch (err) {
+                // Fallback to local client-side calculation
+            }
+            badge.classList.remove('connected');
+            text.innerText = backendApiUrl ? 'RENDER API: OFFLINE' : 'RENDER API: LOCAL';
+            isBackendConnected = false;
+        }
+
+        function promptBackendUrl() {
+            const current = backendApiUrl || 'https://thermal-guardian-api.onrender.com';
+            const userUrl = prompt('Enter your Render Backend API URL (e.g. https://thermal-guardian-api.onrender.com):', current);
+            if (userUrl !== null) {
+                backendApiUrl = userUrl.trim().replace(/\/+$/, '');
+                localStorage.setItem('RENDER_BACKEND_URL', backendApiUrl);
+                checkBackendConnection();
+            }
+        }
+
+        // Check backend connection on load
+        setTimeout(checkBackendConnection, 1500);
 
         // ==========================================
         // STATE & TELEMETRY ENGINE

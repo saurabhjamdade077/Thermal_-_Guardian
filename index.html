@@ -10,11 +10,15 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Orbitron:wght@500;600;700;800;900&family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Esports Dark Navy Palette */
-            --bg-deep: #07090F;
-            --surface-dark: rgba(16, 19, 30, 0.92);
-            --surface-card: rgba(21, 25, 40, 0.95);
-            --surface-inner: #0A0D16;
+            /* Esports Theme Palette */
+            --bg-deep: #0A0A0F;
+            --bg-gradient-start: #0A0A0F;
+            --bg-gradient-mid: #100E1C;
+            --bg-gradient-end: #07080E;
+            
+            --surface-dark: #10121C;
+            --surface-card: #151826;
+            --surface-inner: #0C0E17;
             
             /* High-Octane Accents */
             --neon-cyan: #00F0FF;
@@ -37,8 +41,8 @@
             --text-primary: #F0F4FC;
             --text-secondary: #8E9BB0;
             --text-muted: #4F5D75;
-            --border-hud: rgba(0, 240, 255, 0.24);
-            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-hud: rgba(0, 240, 255, 0.22);
+            --border-subtle: rgba(255, 255, 255, 0.07);
         }
 
         * {
@@ -51,6 +55,10 @@
         body {
             font-family: 'Rajdhani', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: var(--bg-deep);
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(176, 38, 255, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(0, 240, 255, 0.08) 0%, transparent 45%),
+                linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 50%, var(--bg-gradient-end) 100%);
             color: var(--text-primary);
             min-height: 100vh;
             display: flex;
@@ -59,81 +67,25 @@
             padding: 24px 16px;
             overflow-x: hidden;
             letter-spacing: 0.3px;
-            position: relative;
         }
 
-        /* ==========================================
-           FULL-SCREEN THEMED iQOO BACKDROP
-           ========================================== */
-        .backdrop-container {
+        /* Tech Background Grid */
+        body::before {
+            content: '';
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 0;
-            overflow: hidden;
-            background: radial-gradient(ellipse at 50% 45%, #12182A 0%, #090C16 55%, #040509 100%);
-        }
-
-        /* Animated Slow-Pulsing Glow Behind Logo */
-        .backdrop-glow {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 75vw;
-            height: 55vh;
-            max-width: 1100px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(0, 240, 255, 0.14) 0%, rgba(176, 38, 255, 0.10) 45%, transparent 70%);
-            filter: blur(75px);
-            animation: auraBreathing 9s infinite alternate ease-in-out;
-            pointer-events: none;
-        }
-
-        @keyframes auraBreathing {
-            0% { transform: translate(-50%, -50%) scale(0.88); opacity: 0.5; }
-            50% { transform: translate(-50%, -50%) scale(1.18); opacity: 0.9; filter: blur(90px); }
-            100% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.6; }
-        }
-
-        /* Large Centered iQOO Logo (75vw width, 8% opacity texture) */
-        .backdrop-logo {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 75vw;
-            max-width: 1100px;
-            height: auto;
-            object-fit: contain;
-            opacity: 0.08; /* 8% opacity texture */
-            filter: brightness(0) invert(1) drop-shadow(0 0 50px rgba(0, 240, 255, 0.4));
-            pointer-events: none;
-            user-select: none;
-        }
-
-        /* Faint HUD / Radar Grid and Scanline Overlay */
-        .backdrop-grid-scanlines {
-            position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             background-image: 
-                linear-gradient(rgba(0, 240, 255, 0.022) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 240, 255, 0.022) 1px, transparent 1px),
-                repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0, 0, 0, 0.3) 3px, rgba(0, 0, 0, 0.3) 6px);
-            background-size: 38px 38px, 38px 38px, 100% 6px;
+                linear-gradient(rgba(0, 240, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.015) 1px, transparent 1px);
+            background-size: 36px 36px;
             pointer-events: none;
-            opacity: 0.75;
+            z-index: 0;
         }
 
-        /* ==========================================
-           HEADER BAR - ESPORTS GLASS STYLE
-           ========================================== */
+        /* Header Bar - Esports Glass Style */
         .app-header {
             position: relative;
-            z-index: 2;
+            z-index: 1;
             width: 100%;
             max-width: 1240px;
             display: flex;
@@ -141,15 +93,15 @@
             align-items: center;
             margin-bottom: 24px;
             padding: 14px 28px;
-            background: var(--surface-dark);
+            background: rgba(16, 18, 28, 0.85);
             border: 1px solid var(--border-hud);
             clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
-            box-shadow: 0 0 25px rgba(0, 240, 255, 0.08), 0 8px 32px rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(16px);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.08), 0 8px 32px rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(14px);
         }
 
         /* Card Scanning Line Micro-Animation */
-        .app-header::before, .hud-card::before, .device-wrapper::before, .controls-panel::before {
+        .app-header::before, .hud-card::before, .device-wrapper::before {
             content: '';
             position: absolute;
             top: 0;
@@ -157,9 +109,8 @@
             width: 50%;
             height: 2px;
             background: linear-gradient(90deg, transparent, var(--neon-cyan), var(--neon-magenta), transparent);
-            animation: scanLine 4.5s infinite ease-in-out;
-            z-index: 3;
-            pointer-events: none;
+            animation: scanLine 4s infinite ease-in-out;
+            z-index: 2;
         }
 
         @keyframes scanLine {
@@ -180,13 +131,11 @@
             text-shadow: 0 0 12px rgba(0, 240, 255, 0.5);
         }
 
-        .brand-logo-img {
-            height: 22px;
-            width: auto;
-            filter: brightness(0) invert(1) drop-shadow(0 0 10px var(--neon-cyan));
-            margin-right: 2px;
-            display: inline-block;
-            vertical-align: middle;
+        .brand-logo svg {
+            width: 28px;
+            height: 28px;
+            fill: var(--neon-cyan);
+            filter: drop-shadow(0 0 8px var(--neon-cyan));
         }
 
         .brand-logo span span {
@@ -220,17 +169,59 @@
             animation: pulseDot 1.2s infinite alternate;
         }
 
+        .badge-backend {
+            font-family: 'Orbitron', monospace;
+            background: rgba(176, 38, 255, 0.12);
+            color: var(--neon-magenta);
+            border: 1px solid rgba(176, 38, 255, 0.5);
+            padding: 5px 12px;
+            clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            box-shadow: 0 0 12px rgba(176, 38, 255, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .badge-backend:hover {
+            background: rgba(176, 38, 255, 0.25);
+            box-shadow: 0 0 18px var(--neon-magenta-glow);
+        }
+
+        .backend-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--neon-magenta);
+            box-shadow: 0 0 8px var(--neon-magenta);
+            animation: pulseDot 1.2s infinite alternate;
+        }
+
+        .badge-backend.connected {
+            background: rgba(0, 240, 255, 0.12);
+            color: var(--neon-cyan);
+            border-color: rgba(0, 240, 255, 0.6);
+            box-shadow: 0 0 14px rgba(0, 240, 255, 0.3);
+        }
+
+        .badge-backend.connected .backend-dot {
+            background: var(--neon-cyan);
+            box-shadow: 0 0 8px var(--neon-cyan);
+        }
+
         @keyframes pulseDot {
             from { opacity: 0.4; transform: scale(0.8); }
             to { opacity: 1; transform: scale(1.3); }
         }
 
-        /* ==========================================
-           MAIN STUDIO GRID
-           ========================================== */
+        /* Studio Grid */
         .studio-container {
             position: relative;
-            z-index: 2;
+            z-index: 1;
             width: 100%;
             max-width: 1240px;
             display: grid;
@@ -267,17 +258,16 @@
             cursor: pointer;
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
-            backdrop-filter: blur(12px);
         }
 
         .tab-btn:hover {
             color: var(--text-primary);
             border-color: rgba(0, 240, 255, 0.3);
-            background: rgba(0, 240, 255, 0.08);
+            background: rgba(0, 240, 255, 0.05);
         }
 
         .tab-btn.active {
-            background: linear-gradient(180deg, rgba(0, 240, 255, 0.2) 0%, rgba(0, 240, 255, 0.04) 100%);
+            background: linear-gradient(180deg, rgba(0, 240, 255, 0.18) 0%, rgba(0, 240, 255, 0.03) 100%);
             color: var(--neon-cyan);
             border-color: var(--neon-cyan);
             box-shadow: 0 0 18px rgba(0, 240, 255, 0.25), inset 0 0 12px rgba(0, 240, 255, 0.1);
@@ -302,8 +292,8 @@
             height: 770px;
             background: #000;
             border-radius: 46px;
-            border: 10px solid #141624;
-            box-shadow: 0 25px 70px rgba(0,0,0,0.95), 0 0 35px rgba(0, 240, 255, 0.18), 0 0 50px rgba(176, 38, 255, 0.12);
+            border: 10px solid #141622;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.9), 0 0 35px rgba(0, 240, 255, 0.15), 0 0 50px rgba(176, 38, 255, 0.1);
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -318,7 +308,7 @@
             transform: translateX(-50%);
             width: 120px;
             height: 22px;
-            background: #141624;
+            background: #141622;
             border-radius: 12px;
             z-index: 100;
             display: flex;
@@ -378,7 +368,7 @@
             top: 50px;
             left: 18px;
             z-index: 50;
-            background: rgba(10, 10, 15, 0.94);
+            background: rgba(10, 10, 15, 0.93);
             border: 1.5px solid var(--neon-cyan);
             clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
             padding: 6px 12px 6px 14px;
@@ -387,7 +377,7 @@
             gap: 10px;
             cursor: grab;
             box-shadow: 0 0 20px rgba(0, 240, 255, 0.35), 0 8px 25px rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(10px);
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
@@ -490,7 +480,7 @@
             bottom: -230px;
             left: 0;
             width: 100%;
-            background: rgba(12, 14, 24, 0.98);
+            background: rgba(12, 14, 22, 0.98);
             border-top: 2px solid var(--neon-magenta);
             clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
             padding: 18px 20px 24px 20px;
@@ -631,7 +621,6 @@
             gap: 16px;
             margin-bottom: 14px;
             box-shadow: 0 0 20px rgba(0, 240, 255, 0.08), inset 0 0 15px rgba(0, 240, 255, 0.04);
-            backdrop-filter: blur(14px);
         }
 
         .teal-square-badge {
@@ -670,7 +659,6 @@
             padding: 14px 16px;
             margin-bottom: 14px;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(14px);
         }
 
         .chart-card.temp-chart {
@@ -733,7 +721,6 @@
             clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
             padding: 14px 16px;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(14px);
         }
 
         .stat-mini-label {
@@ -795,7 +782,7 @@
            ========================================== */
         .controls-panel {
             position: relative;
-            background: var(--surface-dark);
+            background: rgba(16, 18, 28, 0.90);
             border: 1px solid var(--border-hud);
             clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px);
             padding: 26px;
@@ -803,7 +790,18 @@
             flex-direction: column;
             gap: 20px;
             box-shadow: 0 0 30px rgba(0, 240, 255, 0.1), 0 10px 40px rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(16px);
+            backdrop-filter: blur(14px);
+        }
+
+        .controls-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-cyan), var(--neon-magenta), transparent);
+            animation: scanLine 5s infinite ease-in-out;
         }
 
         .panel-section-title {
@@ -830,7 +828,7 @@
         }
 
         .hud-card:hover {
-            border-color: rgba(0, 240, 255, 0.28);
+            border-color: rgba(0, 240, 255, 0.25);
         }
 
         .control-label-row {
@@ -954,42 +952,367 @@
         .log-entry.low {
             color: var(--neon-green);
         }
+
+        /* Background iQOO Logo Watermark */
+        .iqoo-watermark-wrapper {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50vw;
+            max-width: 650px;
+            min-width: 320px;
+            z-index: 0;
+            pointer-events: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+        }
+
+        .iqoo-watermark-img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            filter: brightness(0) invert(1) drop-shadow(0 0 35px rgba(0, 240, 255, 0.45));
+            opacity: 0.13;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* Custom Esports Cyber Cursor */
+        .custom-cursor-dot {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 6px;
+            background: var(--neon-cyan);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 999999;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        .custom-cursor-ring {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 28px;
+            height: 28px;
+            border: 1.5px solid var(--neon-cyan);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 999998;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.35);
+            transition: width 0.18s ease, height 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .custom-cursor-ring.active {
+            width: 44px;
+            height: 44px;
+            border-color: var(--neon-magenta);
+            box-shadow: 0 0 20px rgba(176, 38, 255, 0.6);
+        }
+
+        /* ==========================================
+           ESPORTS CONSOLE BOOT SPLASH SCREEN
+           ========================================== */
+        .splash-overlay {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #07080E;
+            background-image: 
+                radial-gradient(circle at 50% 45%, rgba(0, 240, 255, 0.12) 0%, transparent 60%),
+                radial-gradient(circle at 50% 55%, rgba(176, 38, 255, 0.12) 0%, transparent 60%),
+                linear-gradient(135deg, #0A0A0F 0%, #06070B 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+            opacity: 1;
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s;
+        }
+
+        .splash-overlay.fade-out {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .splash-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            max-width: 90vw;
+        }
+
+        /* 1. iQOO Text Logo with Console Flicker / Glitch-in Animation */
+        .splash-logo-wrapper {
+            position: relative;
+            display: inline-block;
+            overflow: hidden;
+            padding: 8px 20px;
+        }
+
+        .splash-iqoo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 78px;
+            font-weight: 900;
+            letter-spacing: 8px;
+            color: #FFFFFF;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            position: relative;
+            text-shadow: 0 0 20px rgba(0, 240, 255, 0.6), 0 0 35px rgba(176, 38, 255, 0.4);
+            animation: consoleBootGlitch 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Chromatic Aberration Pseudo Elements */
+        .splash-iqoo-text::before,
+        .splash-iqoo-text::after {
+            content: 'iQOO';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            letter-spacing: 8px;
+        }
+
+        .splash-iqoo-text::before {
+            color: var(--neon-cyan);
+            z-index: -1;
+            animation: glitchOffsetCyan 0.9s ease-in-out forwards;
+        }
+
+        .splash-iqoo-text::after {
+            color: var(--neon-magenta);
+            z-index: -2;
+            animation: glitchOffsetMagenta 0.9s ease-in-out forwards;
+        }
+
+        .splash-iqoo-text .letter-i {
+            color: #FFFFFF;
+            position: relative;
+        }
+
+        .splash-iqoo-text .letter-q {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 25px var(--neon-cyan);
+        }
+
+        .splash-iqoo-text .letter-o1,
+        .splash-iqoo-text .letter-o2 {
+            color: #FFFFFF;
+        }
+
+        /* Horizontal Laser Sweep across letters */
+        .splash-laser-sweep {
+            position: absolute;
+            top: 0;
+            left: -120%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.9), #FFFFFF, rgba(176, 38, 255, 0.9), transparent);
+            transform: skewX(-25deg);
+            animation: laserLightSweep 0.85s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.25s;
+            pointer-events: none;
+        }
+
+        @keyframes consoleBootGlitch {
+            0% {
+                opacity: 0;
+                transform: scale(0.7) translateY(15px);
+                filter: blur(8px);
+            }
+            30% {
+                opacity: 0.8;
+                transform: scale(1.05) translateY(-2px);
+                filter: blur(0px);
+            }
+            45% {
+                opacity: 0.3;
+                transform: scale(0.98);
+            }
+            60% {
+                opacity: 1;
+                transform: scale(1.02);
+            }
+            75% {
+                opacity: 0.85;
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+                filter: blur(0px);
+            }
+        }
+
+        @keyframes glitchOffsetCyan {
+            0% { transform: translate(0, 0); opacity: 0; }
+            25% { transform: translate(-4px, 1px); opacity: 0.9; }
+            50% { transform: translate(3px, -2px); opacity: 0.6; }
+            75% { transform: translate(-2px, 0px); opacity: 0.8; }
+            100% { transform: translate(0, 0); opacity: 0.3; }
+        }
+
+        @keyframes glitchOffsetMagenta {
+            0% { transform: translate(0, 0); opacity: 0; }
+            25% { transform: translate(4px, -1px); opacity: 0.9; }
+            50% { transform: translate(-3px, 2px); opacity: 0.6; }
+            75% { transform: translate(2px, 0px); opacity: 0.8; }
+            100% { transform: translate(0, 0); opacity: 0.3; }
+        }
+
+        @keyframes laserLightSweep {
+            0% { left: -120%; }
+            100% { left: 160%; }
+        }
+
+        /* 2. Self-Drawing Glowing Cyan/Magenta Underline */
+        .splash-accent-line {
+            height: 3px;
+            width: 0px;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta), var(--neon-cyan));
+            box-shadow: 0 0 15px var(--neon-cyan), 0 0 25px var(--neon-magenta);
+            margin: 4px auto 18px auto;
+            animation: drawAccentLine 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.75s;
+            border-radius: 2px;
+        }
+
+        @keyframes drawAccentLine {
+            0% { width: 0px; opacity: 0; }
+            40% { opacity: 1; }
+            100% { width: 310px; opacity: 1; }
+        }
+
+        /* 3. Subtitle Lines */
+        .splash-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 3.5px;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            opacity: 0;
+            transform: translateY(6px);
+            animation: splashSubFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards 1.05s;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+            margin-bottom: 10px;
+        }
+
+        .splash-title span {
+            color: var(--neon-magenta);
+            text-shadow: 0 0 12px var(--neon-magenta-glow);
+        }
+
+        .splash-sub-status {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10.5px;
+            font-weight: 700;
+            color: var(--neon-cyan);
+            letter-spacing: 2px;
+            opacity: 0;
+            transform: translateY(4px);
+            animation: splashSubFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards 1.25s;
+            text-shadow: 0 0 8px var(--neon-cyan-glow);
+        }
+
+        .status-cursor {
+            display: inline-block;
+            color: var(--neon-magenta);
+            animation: cursorBlink 0.6s infinite alternate;
+        }
+
+        @keyframes cursorBlink {
+            from { opacity: 0.3; }
+            to { opacity: 1; }
+        }
+
+        @keyframes splashSubFade {
+            0% { opacity: 0; transform: translateY(6px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Smooth Main Dashboard Fade-In Transition */
+        .main-dashboard-app {
+            opacity: 0;
+            transform: scale(0.985);
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .main-dashboard-app.app-ready {
+            opacity: 1;
+            transform: scale(1);
+        }
     </style>
 </head>
 <body>
 
-    <!-- ==========================================
-         FULL-SCREEN iQOO THEMED BACKDROP
-         ========================================== -->
-    <div class="backdrop-container">
-        <!-- Animated Aura Breathing Glow -->
-        <div class="backdrop-glow"></div>
-        
-        <!-- Large Centered iQOO Logo Texture (75vw width, 8% opacity) -->
-        <img 
-            src="assets/iqoo_logo.png" 
-            alt="iQOO Backdrop" 
-            class="backdrop-logo"
-            onerror="this.src='data:image/png;base64,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'"
-        >
-        
-        <!-- HUD / Radar Grid & Scanline Pattern -->
-        <div class="backdrop-grid-scanlines"></div>
+    <!-- Custom Esports Cyber Cursor -->
+    <div class="custom-cursor-dot" id="cursorDot"></div>
+    <div class="custom-cursor-ring" id="cursorRing"></div>
+
+    <!-- Full-Screen Esports Console Boot Splash Screen -->
+    <div id="splashScreen" class="splash-overlay">
+        <div class="splash-content">
+            <!-- Center iQOO Gaming Text with Glitch & Scanline Reveal -->
+            <div class="splash-logo-wrapper">
+                <div class="splash-iqoo-text">
+                    <span class="letter-i">i</span><span class="letter-q">Q</span><span class="letter-o1">O</span><span class="letter-o2">O</span>
+                </div>
+                <div class="splash-laser-sweep"></div>
+            </div>
+
+            <!-- Self-Drawing Glowing Cyan/Magenta Underline -->
+            <div class="splash-accent-line"></div>
+
+            <!-- Subtitle Lines -->
+            <div class="splash-title">
+                THERMAL <span>&</span> GUARDIAN
+            </div>
+            
+            <div class="splash-sub-status">
+                <span class="status-cursor">▶</span> INITIALIZING TELEMETRY...
+            </div>
+        </div>
     </div>
 
-    <!-- Top Header -->
-    <header class="app-header">
-        <div class="brand-logo">
-            <img 
-                src="assets/iqoo_logo.png" 
-                alt="iQOO" 
-                class="brand-logo-img"
-                onerror="this.src='data:image/png;base64,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'"
-            >
-            <span>Thermal <span>&</span> Guardian</span>
-        </div>
-        <div class="badge-live">ESPORTS TELEMETRY HUD ACTIVE</div>
-    </header>
+    <!-- iQOO Logo Background Watermark -->
+    <div class="iqoo-watermark-wrapper">
+        <img src="assets/iqoo_logo.png" alt="iQOO Watermark" class="iqoo-watermark-img">
+    </div>
+
+    <!-- Main Dashboard Application (Crossfades in smoothly after splash) -->
+    <div class="main-dashboard-app" id="mainDashboardApp">
+
+        <!-- Top Header -->
+        <header class="app-header">
+            <div class="brand-logo">
+                <svg viewBox="0 0 24 24"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm0 4a4.5 4.5 0 0 1 4.5 4.5c0 2.12-1.45 3.9-3.4 4.36L12 18l-1.1-3.14A4.502 4.502 0 0 1 7.5 10.5 4.5 4.5 0 0 1 12 6z"/></svg>
+                <span>Thermal <span>&</span> Guardian</span>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <div class="badge-backend" id="backendBadge" title="Click to configure Render Backend API URL" onclick="promptBackendUrl()">
+                    <span class="backend-dot" id="backendDot"></span>
+                    <span id="backendStatusText">RENDER API: LOCAL</span>
+                </div>
+                <div class="badge-live">VERCEL FRONTEND ACTIVE</div>
+            </div>
+        </header>
 
     <!-- Studio Layout -->
     <div class="studio-container">
@@ -1147,9 +1470,90 @@
             </div>
         </div>
 
-    </div>
+    </div> <!-- End of .studio-container -->
+    </div> <!-- End of #mainDashboardApp -->
 
     <script>
+        // ==========================================
+        // SPLASH SCREEN INTRO CONTROLLER (Single-Play on Load)
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', () => {
+            const splashScreen = document.getElementById('splashScreen');
+            const mainApp = document.getElementById('mainDashboardApp');
+            
+            // Total intro duration 2.2s, then start smooth crossfade transition
+            setTimeout(() => {
+                if (mainApp) mainApp.classList.add('app-ready');
+                if (splashScreen) splashScreen.classList.add('fade-out');
+
+                // Complete cleanup after fade-out transition finishes
+                setTimeout(() => {
+                    if (splashScreen) splashScreen.style.display = 'none';
+                }, 650);
+            }, 2200);
+
+            // Custom Esports Cyber Cursor Tracking
+            const cursorDot = document.getElementById('cursorDot');
+            const cursorRing = document.getElementById('cursorRing');
+
+            if (cursorDot && cursorRing) {
+                document.addEventListener('mousemove', (e) => {
+                    cursorDot.style.left = `${e.clientX}px`;
+                    cursorDot.style.top = `${e.clientY}px`;
+                    cursorRing.style.left = `${e.clientX}px`;
+                    cursorRing.style.top = `${e.clientY}px`;
+                });
+
+                document.querySelectorAll('button, input, .tab-btn, .hud-card, .draggable-hud-pill, .stat-highlight-card, .btn-preset').forEach(el => {
+                    el.addEventListener('mouseenter', () => cursorRing.classList.add('active'));
+                    el.addEventListener('mouseleave', () => cursorRing.classList.remove('active'));
+                });
+            }
+        });
+
+        // ==========================================
+        // RENDER BACKEND API CONNECTOR
+        // ==========================================
+        let backendApiUrl = localStorage.getItem('RENDER_BACKEND_URL') || '';
+        let isBackendConnected = false;
+
+        async function checkBackendConnection() {
+            const badge = document.getElementById('backendBadge');
+            const text = document.getElementById('backendStatusText');
+            if (!badge || !text) return;
+
+            const targetUrl = backendApiUrl || 'http://localhost:5000';
+            try {
+                const start = performance.now();
+                const res = await fetch(`${targetUrl}/health`, { method: 'GET', signal: AbortSignal.timeout(2500) });
+                if (res.ok) {
+                    const elapsed = Math.round(performance.now() - start);
+                    badge.classList.add('connected');
+                    text.innerText = `RENDER API: ONLINE (${elapsed}ms)`;
+                    isBackendConnected = true;
+                    return;
+                }
+            } catch (err) {
+                // Fallback to local client-side calculation
+            }
+            badge.classList.remove('connected');
+            text.innerText = backendApiUrl ? 'RENDER API: OFFLINE' : 'RENDER API: LOCAL';
+            isBackendConnected = false;
+        }
+
+        function promptBackendUrl() {
+            const current = backendApiUrl || 'https://thermal-guardian-api.onrender.com';
+            const userUrl = prompt('Enter your Render Backend API URL (e.g. https://thermal-guardian-api.onrender.com):', current);
+            if (userUrl !== null) {
+                backendApiUrl = userUrl.trim().replace(/\/+$/, '');
+                localStorage.setItem('RENDER_BACKEND_URL', backendApiUrl);
+                checkBackendConnection();
+            }
+        }
+
+        // Check backend connection on load
+        setTimeout(checkBackendConnection, 1500);
+
         // ==========================================
         // STATE & TELEMETRY ENGINE
         // ==========================================
