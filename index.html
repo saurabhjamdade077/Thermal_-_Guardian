@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thermal & Performance Guardian - Esports HUD Simulator</title>
+    <!-- Tech & Esports Typography: Orbitron, Rajdhani, JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Orbitron:wght@500;600;700;800;900&family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Esports Dark Navy Palette */
+            --bg-deep: #07090F;
+            --surface-dark: rgba(16, 19, 30, 0.92);
+            --surface-card: rgba(21, 25, 40, 0.95);
+            --surface-inner: #0A0D16;
+            
+            /* High-Octane Accents */
+            --neon-cyan: #00F0FF;
+            --neon-cyan-glow: rgba(0, 240, 255, 0.45);
+            --neon-cyan-subtle: rgba(0, 240, 255, 0.12);
+            
+            --neon-magenta: #B026FF;
+            --neon-magenta-glow: rgba(176, 38, 255, 0.45);
+            --neon-magenta-subtle: rgba(176, 38, 255, 0.12);
+
+            --neon-green: #00E676;
+            --neon-green-glow: rgba(0, 230, 118, 0.4);
+
+            --electric-amber: #FFB300;
+            --electric-amber-glow: rgba(255, 179, 0, 0.4);
+
+            --thermal-crimson: #FF0055;
+            --thermal-crimson-glow: rgba(255, 0, 85, 0.5);
+
+            --text-primary: #F0F4FC;
+            --text-secondary: #8E9BB0;
+            --text-muted: #4F5D75;
+            --border-hud: rgba(0, 240, 255, 0.24);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Rajdhani', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 16px;
+            overflow-x: hidden;
+            letter-spacing: 0.3px;
+            position: relative;
+        }
+
+        /* ==========================================
+           FULL-SCREEN THEMED iQOO BACKDROP
+           ========================================== */
+        .backdrop-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+            background: radial-gradient(ellipse at 50% 45%, #12182A 0%, #090C16 55%, #040509 100%);
+        }
+
+        /* Animated Slow-Pulsing Glow Behind Logo */
+        .backdrop-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 75vw;
+            height: 55vh;
+            max-width: 1100px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 240, 255, 0.14) 0%, rgba(176, 38, 255, 0.10) 45%, transparent 70%);
+            filter: blur(75px);
+            animation: auraBreathing 9s infinite alternate ease-in-out;
+            pointer-events: none;
+        }
+
+        @keyframes auraBreathing {
+            0% { transform: translate(-50%, -50%) scale(0.88); opacity: 0.5; }
+            50% { transform: translate(-50%, -50%) scale(1.18); opacity: 0.9; filter: blur(90px); }
+            100% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.6; }
+        }
+
+        /* Large Centered iQOO Logo (75vw width, 8% opacity texture) */
+        .backdrop-logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 75vw;
+            max-width: 1100px;
+            height: auto;
+            object-fit: contain;
+            opacity: 0.08; /* 8% opacity texture */
+            filter: brightness(0) invert(1) drop-shadow(0 0 50px rgba(0, 240, 255, 0.4));
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* Faint HUD / Radar Grid and Scanline Overlay */
+        .backdrop-grid-scanlines {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(0, 240, 255, 0.022) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.022) 1px, transparent 1px),
+                repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0, 0, 0, 0.3) 3px, rgba(0, 0, 0, 0.3) 6px);
+            background-size: 38px 38px, 38px 38px, 100% 6px;
+            pointer-events: none;
+            opacity: 0.75;
+        }
+
+        /* ==========================================
+           HEADER BAR - ESPORTS GLASS STYLE
+           ========================================== */
+        .app-header {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 1240px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding: 14px 28px;
+            background: var(--surface-dark);
+            border: 1px solid var(--border-hud);
+            clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.08), 0 8px 32px rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(16px);
+        }
+
+        /* Card Scanning Line Micro-Animation */
+        .app-header::before, .hud-card::before, .device-wrapper::before, .controls-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-cyan), var(--neon-magenta), transparent);
+            animation: scanLine 4.5s infinite ease-in-out;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        @keyframes scanLine {
+            0% { left: -50%; }
+            100% { left: 150%; }
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-primary);
+            text-shadow: 0 0 12px rgba(0, 240, 255, 0.5);
+        }
+
+        .brand-logo-img {
+            height: 22px;
+            width: auto;
+            filter: brightness(0) invert(1) drop-shadow(0 0 10px var(--neon-cyan));
+            margin-right: 2px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .brand-logo span span {
+            color: var(--neon-magenta);
+            text-shadow: 0 0 12px var(--neon-magenta-glow);
+        }
+
+        .badge-live {
+            font-family: 'Orbitron', monospace;
+            background: rgba(0, 230, 118, 0.12);
+            color: var(--neon-green);
+            border: 1px solid rgba(0, 230, 118, 0.5);
+            padding: 5px 14px;
+            clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            box-shadow: 0 0 12px rgba(0, 230, 118, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge-live::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--neon-green);
+            box-shadow: 0 0 8px var(--neon-green);
+            animation: pulseDot 1.2s infinite alternate;
+        }
+
+        @keyframes pulseDot {
+            from { opacity: 0.4; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1.3); }
+        }
+
+        /* ==========================================
+           MAIN STUDIO GRID
+           ========================================== */
+        .studio-container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 1240px;
+            display: grid;
+            grid-template-columns: 410px 1fr;
+            gap: 28px;
+            align-items: start;
+        }
+
+        @media (max-width: 960px) {
+            .studio-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Tab Switcher - Esports HUD Brackets */
+        .app-switch-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: var(--surface-card);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-subtle);
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            backdrop-filter: blur(12px);
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            border-color: rgba(0, 240, 255, 0.3);
+            background: rgba(0, 240, 255, 0.08);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(180deg, rgba(0, 240, 255, 0.2) 0%, rgba(0, 240, 255, 0.04) 100%);
+            color: var(--neon-cyan);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 18px rgba(0, 240, 255, 0.25), inset 0 0 12px rgba(0, 240, 255, 0.1);
+            text-shadow: 0 0 10px var(--neon-cyan-glow);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20%;
+            width: 60%;
+            height: 2.5px;
+            background: var(--neon-cyan);
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        /* Phone Device Frame */
+        .device-wrapper {
+            position: relative;
+            width: 390px;
+            height: 770px;
+            background: #000;
+            border-radius: 46px;
+            border: 10px solid #141624;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.95), 0 0 35px rgba(0, 240, 255, 0.18), 0 0 50px rgba(176, 38, 255, 0.12);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            margin: 0 auto;
+        }
+
+        /* Speaker Notch */
+        .device-notch {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 22px;
+            background: #141624;
+            border-radius: 12px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.15);
+        }
+
+        .device-notch::after {
+            content: '';
+            width: 48px;
+            height: 4px;
+            background: #252A3C;
+            border-radius: 4px;
+        }
+
+        /* Screen Viewport */
+        .device-screen {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: #07080E;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen-view {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 42px 18px 20px 18px;
+            display: none;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .screen-view.active {
+            display: flex;
+        }
+
+        /* Game Simulation Canvas */
+        .game-canvas-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Draggable Esports Pill HUD */
+        .draggable-hud-pill {
+            position: absolute;
+            top: 50px;
+            left: 18px;
+            z-index: 50;
+            background: rgba(10, 10, 15, 0.94);
+            border: 1.5px solid var(--neon-cyan);
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            padding: 6px 12px 6px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: grab;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.35), 0 8px 25px rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(12px);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .draggable-hud-pill:active {
+            cursor: grabbing;
+        }
+
+        .hud-game-label {
+            font-family: 'Orbitron', monospace;
+            font-size: 10.5px;
+            font-weight: 800;
+            color: var(--text-secondary);
+            letter-spacing: 0.8px;
+        }
+
+        .hud-divider {
+            width: 1.5px;
+            height: 14px;
+            background: rgba(0, 240, 255, 0.3);
+        }
+
+        .hud-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--neon-green);
+            box-shadow: 0 0 8px var(--neon-green);
+            transition: all 0.3s ease;
+        }
+
+        .hud-dot.pulsing-amber {
+            background: var(--electric-amber);
+            box-shadow: 0 0 10px var(--electric-amber);
+            animation: pulseAmber 0.8s infinite alternate ease-in-out;
+        }
+
+        .hud-dot.pulsing-red {
+            background: var(--thermal-crimson);
+            box-shadow: 0 0 14px var(--thermal-crimson);
+            animation: pulseRed 0.45s infinite alternate ease-in-out;
+        }
+
+        @keyframes pulseAmber {
+            from { transform: scale(0.9); opacity: 0.7; }
+            to { transform: scale(1.4); opacity: 1; }
+        }
+
+        @keyframes pulseRed {
+            from { transform: scale(0.8); opacity: 0.6; filter: drop-shadow(0 0 2px var(--thermal-crimson)); }
+            to { transform: scale(1.5); opacity: 1; filter: drop-shadow(0 0 10px var(--thermal-crimson)); }
+        }
+
+        .hud-temp {
+            font-family: 'Orbitron', monospace;
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .hud-fps {
+            font-family: 'Orbitron', monospace;
+            font-size: 12.5px;
+            font-weight: 900;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 8px var(--neon-cyan-glow);
+        }
+
+        .hud-battery {
+            font-family: 'Orbitron', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--neon-magenta);
+            text-shadow: 0 0 8px var(--neon-magenta-glow);
+        }
+
+        .hud-stop-btn {
+            background: rgba(255, 0, 85, 0.15);
+            border: 1px solid var(--thermal-crimson);
+            color: var(--thermal-crimson);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
+            transition: all 0.2s ease;
+        }
+
+        .hud-stop-btn:hover {
+            background: var(--thermal-crimson);
+            color: #000;
+            box-shadow: 0 0 12px var(--thermal-crimson-glow);
+            transform: scale(1.1);
+        }
+
+        /* Bottom Thermal Alert Suggestion Popup */
+        .bottom-alert-popup {
+            position: absolute;
+            bottom: -230px;
+            left: 0;
+            width: 100%;
+            background: rgba(12, 14, 24, 0.98);
+            border-top: 2px solid var(--neon-magenta);
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+            padding: 18px 20px 24px 20px;
+            z-index: 60;
+            box-shadow: 0 -10px 45px rgba(176, 38, 255, 0.35), 0 -2px 15px rgba(0, 240, 255, 0.2);
+            transition: bottom 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(16px);
+        }
+
+        .bottom-alert-popup.visible {
+            bottom: 0;
+        }
+
+        .alert-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .alert-tag {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            font-weight: 900;
+            color: var(--neon-magenta);
+            letter-spacing: 1.5px;
+            text-shadow: 0 0 10px var(--neon-magenta-glow);
+        }
+
+        .alert-orange-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--neon-magenta);
+            box-shadow: 0 0 10px var(--neon-magenta);
+            animation: pulseRed 0.6s infinite alternate;
+        }
+
+        .alert-dismiss-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px;
+            transition: color 0.2s;
+        }
+
+        .alert-dismiss-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .alert-body-text {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 15px;
+            line-height: 22px;
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .alert-action-btn {
+            width: 100%;
+            height: 48px;
+            background: var(--neon-cyan);
+            color: var(--bg-deep);
+            border: none;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 0 20px var(--neon-cyan-glow);
+            transition: all 0.2s ease;
+        }
+
+        .alert-action-btn:hover {
+            background: #fff;
+            box-shadow: 0 0 28px var(--neon-cyan);
+            transform: translateY(-1.5px);
+        }
+
+        /* ==========================================
+           REPORT CARD SCREEN (Figma Spec + Esports HUD)
+           ========================================== */
+        .report-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .btn-icon-back {
+            background: rgba(0, 240, 255, 0.08);
+            border: 1px solid var(--border-hud);
+            color: var(--neon-cyan);
+            cursor: pointer;
+            padding: 6px;
+            clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .btn-icon-back:hover {
+            background: var(--neon-cyan);
+            color: #000;
+            box-shadow: 0 0 12px var(--neon-cyan-glow);
+        }
+
+        .report-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-primary);
+            text-align: center;
+            flex: 1;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+        }
+
+        /* 1. Highlight Stat Card */
+        .stat-highlight-card {
+            position: relative;
+            background: var(--surface-dark);
+            border: 1px solid var(--border-hud);
+            clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.08), inset 0 0 15px rgba(0, 240, 255, 0.04);
+            backdrop-filter: blur(14px);
+        }
+
+        .teal-square-badge {
+            width: 52px;
+            height: 52px;
+            background: rgba(0, 240, 255, 0.12);
+            border: 1.5px solid var(--neon-cyan);
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', monospace;
+            font-size: 26px;
+            font-weight: 900;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 14px var(--neon-cyan-glow);
+            box-shadow: 0 0 16px rgba(0, 240, 255, 0.2);
+            flex-shrink: 0;
+        }
+
+        .stat-highlight-text {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 20px;
+            color: var(--text-primary);
+            letter-spacing: 0.5px;
+        }
+
+        /* 2 & 3. Chart Cards */
+        .chart-card {
+            position: relative;
+            background: var(--surface-dark);
+            border: 1px solid var(--border-subtle);
+            clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+            padding: 14px 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(14px);
+        }
+
+        .chart-card.temp-chart {
+            border-left: 2px solid var(--electric-amber);
+        }
+
+        .chart-card.fps-chart {
+            border-left: 2px solid var(--neon-cyan);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .chart-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10.5px;
+            font-weight: 800;
+            color: var(--text-muted);
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+        }
+
+        .chart-max-temp {
+            font-family: 'Orbitron', monospace;
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--electric-amber);
+            text-shadow: 0 0 10px var(--electric-amber-glow);
+        }
+
+        .chart-avg-fps {
+            font-family: 'Orbitron', monospace;
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan-glow);
+        }
+
+        .canvas-graph {
+            width: 100%;
+            height: 92px;
+            display: block;
+        }
+
+        /* 4. Side-by-Side Stat Boxes */
+        .stats-grid-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stat-mini-box {
+            background: var(--surface-dark);
+            border: 1px solid var(--border-subtle);
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            padding: 14px 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(14px);
+        }
+
+        .stat-mini-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .stat-mini-val {
+            font-family: 'Orbitron', monospace;
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--text-primary);
+        }
+
+        .stat-mini-val.efficiency-green {
+            color: var(--neon-green);
+            text-shadow: 0 0 12px var(--neon-green-glow);
+        }
+        .stat-mini-val.efficiency-yellow {
+            color: var(--electric-amber);
+            text-shadow: 0 0 12px var(--electric-amber-glow);
+        }
+        .stat-mini-val.efficiency-red {
+            color: var(--thermal-crimson);
+            text-shadow: 0 0 14px var(--thermal-crimson-glow);
+        }
+
+        /* 5. Share Report Action Button */
+        .btn-share-report {
+            width: 100%;
+            height: 52px;
+            background: var(--neon-cyan);
+            color: var(--bg-deep);
+            border: none;
+            clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 15px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 0 24px var(--neon-cyan-glow), 0 8px 20px rgba(0, 0, 0, 0.6);
+            transition: all 0.25s ease;
+        }
+
+        .btn-share-report:hover {
+            background: #fff;
+            box-shadow: 0 0 35px var(--neon-cyan);
+            transform: translateY(-2px);
+        }
+
+        /* ==========================================
+           RIGHT CONTROL PANEL (MSI / Razer Style)
+           ========================================== */
+        .controls-panel {
+            position: relative;
+            background: var(--surface-dark);
+            border: 1px solid var(--border-hud);
+            clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px);
+            padding: 26px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.1), 0 10px 40px rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(16px);
+        }
+
+        .panel-section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+        }
+
+        .hud-card {
+            position: relative;
+            background: var(--surface-card);
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            padding: 16px 18px;
+            border: 1px solid var(--border-subtle);
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
+            transition: border-color 0.3s ease;
+        }
+
+        .hud-card:hover {
+            border-color: rgba(0, 240, 255, 0.28);
+        }
+
+        .control-label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .control-value-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 8px var(--neon-cyan-glow);
+        }
+
+        .control-value-badge.magenta {
+            color: var(--neon-magenta);
+            text-shadow: 0 0 8px var(--neon-magenta-glow);
+        }
+
+        /* Angular Cyber Sliders */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            background: var(--surface-inner);
+            border: 1px solid var(--border-subtle);
+            border-radius: 0;
+            clip-path: polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px);
+            outline: none;
+            cursor: pointer;
+            margin: 6px 0 10px 0;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--neon-cyan);
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            box-shadow: 0 0 12px var(--neon-cyan);
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.25);
+        }
+
+        /* Preset Buttons */
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .btn-preset {
+            background: var(--surface-inner);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-subtle);
+            padding: 9px 8px;
+            clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-preset:hover {
+            color: var(--text-primary);
+            border-color: var(--neon-cyan);
+            background: rgba(0, 240, 255, 0.08);
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
+        }
+
+        .btn-preset.active {
+            border-color: var(--neon-magenta);
+            background: rgba(176, 38, 255, 0.15);
+            color: var(--neon-magenta);
+            box-shadow: 0 0 15px rgba(176, 38, 255, 0.35);
+        }
+
+        /* Live Terminal / Predictor Engine Log */
+        .live-log-box {
+            background: var(--surface-inner);
+            border: 1px solid var(--border-subtle);
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+            padding: 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-secondary);
+            max-height: 175px;
+            overflow-y: auto;
+            line-height: 20px;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.8);
+        }
+
+        .log-entry.high {
+            color: var(--thermal-crimson);
+            font-weight: 700;
+            text-shadow: 0 0 8px var(--thermal-crimson-glow);
+        }
+
+        .log-entry.med {
+            color: var(--electric-amber);
+            font-weight: 600;
+            text-shadow: 0 0 8px var(--electric-amber-glow);
+        }
+
+        .log-entry.low {
+            color: var(--neon-green);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==========================================
+         FULL-SCREEN iQOO THEMED BACKDROP
+         ========================================== -->
+    <div class="backdrop-container">
+        <!-- Animated Aura Breathing Glow -->
+        <div class="backdrop-glow"></div>
+        
+        <!-- Large Centered iQOO Logo Texture (75vw width, 8% opacity) -->
+        <img 
+            src="assets/iqoo_logo.png" 
+            alt="iQOO Backdrop" 
+            class="backdrop-logo"
+            onerror="this.src='data:image/png;base64,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'"
+        >
+        
+        <!-- HUD / Radar Grid & Scanline Pattern -->
+        <div class="backdrop-grid-scanlines"></div>
+    </div>
+
+    <!-- Top Header -->
+    <header class="app-header">
+        <div class="brand-logo">
+            <img 
+                src="assets/iqoo_logo.png" 
+                alt="iQOO" 
+                class="brand-logo-img"
+                onerror="this.src='data:image/png;base64,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'"
+            >
+            <span>Thermal <span>&</span> Guardian</span>
+        </div>
+        <div class="badge-live">ESPORTS TELEMETRY HUD ACTIVE</div>
+    </header>
+
+    <!-- Studio Layout -->
+    <div class="studio-container">
+        
+        <!-- Left: Phone Device Simulated View -->
+        <div>
+            <!-- Mode Switcher Tabs -->
+            <div class="app-switch-tabs">
+                <button class="tab-btn active" id="tab-btn-game" onclick="switchPhoneScreen('game')">🎮 GAME OVERLAY</button>
+                <button class="tab-btn" id="tab-btn-report" onclick="switchPhoneScreen('report')">📊 REPORT CARD</button>
+            </div>
+
+            <div class="device-wrapper">
+                <div class="device-notch"></div>
+                <div class="device-screen">
+                    
+                    <!-- View 1: Game Play Screen with Draggable Pill Overlay -->
+                    <div class="screen-view active" id="view-game" style="padding:0;">
+                        <!-- Animated 60FPS Game Canvas -->
+                        <canvas id="gameCanvas" class="game-canvas-bg"></canvas>
+
+                        <!-- Draggable Pill HUD (Figma Spec) -->
+                        <div class="draggable-hud-pill" id="hudPill">
+                            <span class="hud-game-label">COSMIC_VOID_v1.0</span>
+                            <div class="hud-divider"></div>
+                            <div class="hud-dot" id="hudDot"></div>
+                            <span class="hud-temp" id="hudTempText">36°C</span>
+                            <span class="hud-fps" id="hudFpsText">60 FPS</span>
+                            <span class="hud-battery" id="hudBatteryText">82%</span>
+                            <button class="hud-stop-btn" onclick="onStopSessionFromOverlay()" title="End Session">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h12v12H6z"/></svg>
+                            </button>
+                        </div>
+
+                        <!-- Bottom Thermal Alert Popup (Figma Spec) -->
+                        <div class="bottom-alert-popup" id="alertPopup">
+                            <div class="alert-top-row">
+                                <div class="alert-tag">
+                                    <div class="alert-orange-dot"></div>
+                                    <span>THERMAL ALERT</span>
+                                </div>
+                                <button class="alert-dismiss-btn" onclick="dismissAlert()">✕</button>
+                            </div>
+                            <div class="alert-body-text">
+                                Throttling risk rising — reduce refresh rate to 90Hz?
+                            </div>
+                            <button class="alert-action-btn" onclick="adjustSettingsFromAlert()">Adjust Settings</button>
+                        </div>
+                    </div>
+
+                    <!-- View 2: Post-Session Report Card (Figma Spec) -->
+                    <div class="screen-view" id="view-report">
+                        <!-- Header -->
+                        <div class="report-header">
+                            <button class="btn-icon-back" onclick="switchPhoneScreen('game')">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                            </button>
+                            <span class="report-title">Session Report</span>
+                            <div style="width:32px;"></div>
+                        </div>
+
+                        <!-- 1. Highlight Stat Card -->
+                        <div class="stat-highlight-card">
+                            <div class="teal-square-badge" id="reportAvoidedCount">3</div>
+                            <div class="stat-highlight-text">Throttling events avoided this session</div>
+                        </div>
+
+                        <!-- 2. Temperature Over Time Card -->
+                        <div class="chart-card temp-chart">
+                            <div class="chart-header">
+                                <span class="chart-label">TEMPERATURE OVER TIME</span>
+                                <span class="chart-max-temp" id="reportMaxTemp">Max: 43°C</span>
+                            </div>
+                            <canvas id="canvasTempChart" class="canvas-graph"></canvas>
+                        </div>
+
+                        <!-- 3. FPS Over Time Card -->
+                        <div class="chart-card fps-chart">
+                            <div class="chart-header">
+                                <span class="chart-label">FPS OVER TIME</span>
+                                <span class="chart-avg-fps" id="reportAvgFps">Avg: 58 FPS</span>
+                            </div>
+                            <canvas id="canvasFpsChart" class="canvas-graph"></canvas>
+                        </div>
+
+                        <!-- 4. Side-by-Side Stat Boxes -->
+                        <div class="stats-grid-row">
+                            <div class="stat-mini-box">
+                                <div class="stat-mini-label">SESSION TIME</div>
+                                <div class="stat-mini-val" id="reportSessionTime">32 min</div>
+                            </div>
+                            <div class="stat-mini-box">
+                                <div class="stat-mini-label">EFFICIENCY</div>
+                                <div class="stat-mini-val efficiency-green" id="reportEfficiency">94.2%</div>
+                            </div>
+                        </div>
+
+                        <!-- 5. Share Report Action Button -->
+                        <button class="btn-share-report" onclick="shareReportCard()">Share Report</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Interactive Telemetry Controls & Live Engine Simulation -->
+        <div class="controls-panel">
+            <div class="panel-section-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--neon-cyan)"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+                <span>Live Telemetry & Predictor Engine</span>
+            </div>
+
+            <!-- Temperature Slider -->
+            <div class="hud-card">
+                <div class="control-label-row">
+                    <span>CPU / Battery Temp</span>
+                    <span class="control-value-badge" id="valTemp">36.0°C</span>
+                </div>
+                <input type="range" id="sliderTemp" min="28" max="50" step="0.5" value="36" oninput="onManualTempChange(this.value)">
+                
+                <div class="preset-buttons">
+                    <button class="btn-preset" onclick="setPreset('cool')">❄️ Cool (32°C)</button>
+                    <button class="btn-preset" onclick="setPreset('warm')">🔥 Warm (40°C)</button>
+                    <button class="btn-preset" onclick="setPreset('spike')">🚨 Spike (44°C)</button>
+                </div>
+            </div>
+
+            <!-- FPS Slider -->
+            <div class="hud-card">
+                <div class="control-label-row">
+                    <span>Display FPS</span>
+                    <span class="control-value-badge" id="valFps">60 FPS</span>
+                </div>
+                <input type="range" id="sliderFps" min="20" max="120" step="1" value="60" oninput="onManualFpsChange(this.value)">
+            </div>
+
+            <!-- Battery & Drain -->
+            <div class="hud-card">
+                <div class="control-label-row">
+                    <span>Battery Level & Drain Rate</span>
+                    <span class="control-value-badge magenta" id="valDrain">82% · 0.3%/min</span>
+                </div>
+                <input type="range" id="sliderDrain" min="0.1" max="2.5" step="0.1" value="0.3" oninput="onManualDrainChange(this.value)">
+            </div>
+
+            <!-- Live Engine Log Box -->
+            <div class="hud-card">
+                <div class="control-label-row">
+                    <span>Rolling Window Predictor Log</span>
+                    <span class="control-value-badge" id="riskBadge" style="color:var(--neon-green)">LOW RISK</span>
+                </div>
+                <div class="live-log-box" id="logBox">
+                    <div class="log-entry low">[00:00:01] Sensor Collector active. Slope: +0.05°C/10s. Risk: LOW.</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ==========================================
+        // STATE & TELEMETRY ENGINE
+        // ==========================================
+        let currentTemp = 36.0;
+        let currentFps = 60.0;
+        let batteryPct = 82;
+        let drainRate = 0.3;
+        let sessionSeconds = 0;
+        let lowRiskSeconds = 0;
+        let avoidedCount = 3;
+        let currentRisk = 'LOW';
+        let isSpikeSimulated = false;
+
+        const telemetryHistory = [];
+
+        // UI References
+        const hudTempText = document.getElementById('hudTempText');
+        const hudFpsText = document.getElementById('hudFpsText');
+        const hudBatteryText = document.getElementById('hudBatteryText');
+        const hudDot = document.getElementById('hudDot');
+        const alertPopup = document.getElementById('alertPopup');
+        const logBox = document.getElementById('logBox');
+        const riskBadge = document.getElementById('riskBadge');
+
+        // Draggable HUD Pill
+        const hudPill = document.getElementById('hudPill');
+        let isDragging = false;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+
+        hudPill.addEventListener('mousedown', (e) => {
+            if (e.target.closest('button')) return;
+            isDragging = true;
+            dragOffsetX = e.clientX - hudPill.offsetLeft;
+            dragOffsetY = e.clientY - hudPill.offsetTop;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            let newX = e.clientX - dragOffsetX;
+            let newY = e.clientY - dragOffsetY;
+            newX = Math.max(10, Math.min(newX, 390 - hudPill.offsetWidth - 10));
+            newY = Math.max(40, Math.min(newY, 750 - hudPill.offsetHeight - 10));
+            hudPill.style.left = newX + 'px';
+            hudPill.style.top = newY + 'px';
+        });
+
+        document.addEventListener('mouseup', () => { isDragging = false; });
+
+        // Touch drag support
+        hudPill.addEventListener('touchstart', (e) => {
+            if (e.target.closest('button')) return;
+            isDragging = true;
+            const touch = e.touches[0];
+            dragOffsetX = touch.clientX - hudPill.offsetLeft;
+            dragOffsetY = touch.clientY - hudPill.offsetTop;
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            const touch = e.touches[0];
+            let newX = touch.clientX - dragOffsetX;
+            let newY = touch.clientY - dragOffsetY;
+            newX = Math.max(10, Math.min(newX, 390 - hudPill.offsetWidth - 10));
+            newY = Math.max(40, Math.min(newY, 750 - hudPill.offsetHeight - 10));
+            hudPill.style.left = newX + 'px';
+            hudPill.style.top = newY + 'px';
+        });
+
+        document.addEventListener('touchend', () => { isDragging = false; });
+
+        // ==========================================
+        // 1-SECOND SAMPLING LOOP & PREDICTOR
+        // ==========================================
+        setInterval(() => {
+            sessionSeconds++;
+            
+            // Subtle frame jitter
+            if (!isSpikeSimulated) {
+                currentFps = Math.max(55, Math.min(60, currentFps + (Math.random() * 2 - 1)));
+            }
+
+            // Store Telemetry point
+            telemetryHistory.push({
+                time: sessionSeconds,
+                temp: currentTemp,
+                fps: currentFps
+            });
+            if (telemetryHistory.length > 60) telemetryHistory.shift();
+
+            // Calculate linear slope over last 10 samples
+            let slopePer10s = 0;
+            if (telemetryHistory.length >= 3) {
+                const recent = telemetryHistory.slice(-10);
+                const deltaT = recent[recent.length - 1].temp - recent[0].temp;
+                slopePer10s = (deltaT / recent.length) * 10;
+            }
+
+            // Evaluate Risk Scoring Logic
+            const isHighTemp = currentTemp >= 43.5 || (currentTemp >= 41.5 && slopePer10s >= 0.6 && currentFps < 55);
+            const isMedTemp = (currentTemp >= 39.0 && slopePer10s >= 0.3) || currentFps < 52;
+
+            if (isHighTemp) {
+                currentRisk = 'HIGH';
+                hudDot.className = 'hud-dot pulsing-red';
+                riskBadge.textContent = 'HIGH RISK (THROTTLING)';
+                riskBadge.style.color = 'var(--thermal-crimson)';
+                riskBadge.style.textShadow = '0 0 10px var(--thermal-crimson-glow)';
+                alertPopup.classList.add('visible');
+            } else if (isMedTemp) {
+                currentRisk = 'MEDIUM';
+                hudDot.className = 'hud-dot pulsing-amber';
+                riskBadge.textContent = 'MEDIUM RISK';
+                riskBadge.style.color = 'var(--electric-amber)';
+                riskBadge.style.textShadow = '0 0 10px var(--electric-amber-glow)';
+            } else {
+                currentRisk = 'LOW';
+                hudDot.className = 'hud-dot';
+                hudDot.style.background = 'var(--neon-green)';
+                hudDot.style.boxShadow = '0 0 8px var(--neon-green)';
+                riskBadge.textContent = 'LOW RISK (OPTIMAL)';
+                riskBadge.style.color = 'var(--neon-green)';
+                riskBadge.style.textShadow = '0 0 10px var(--neon-green-glow)';
+                lowRiskSeconds++;
+            }
+
+            // Update HUD Pill
+            hudTempText.textContent = `${Math.round(currentTemp)}°C`;
+            hudFpsText.textContent = `${Math.round(currentFps)} FPS`;
+            hudBatteryText.textContent = `${batteryPct}%`;
+
+            // Append to Log Box
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${currentRisk.toLowerCase()}`;
+            logEntry.textContent = `[${formatTime(sessionSeconds)}] Temp: ${currentTemp.toFixed(1)}°C · FPS: ${Math.round(currentFps)} · Slope: ${slopePer10s > 0 ? '+' : ''}${slopePer10s.toFixed(2)}°C/10s -> ${currentRisk}`;
+            logBox.appendChild(logEntry);
+            logBox.scrollTop = logBox.scrollHeight;
+
+        }, 1000);
+
+        function formatTime(sec) {
+            const m = Math.floor(sec / 60).toString().padStart(2, '0');
+            const s = (sec % 60).toString().padStart(2, '0');
+            return `00:${m}:${s}`;
+        }
+
+        // ==========================================
+        // MANUAL CONTROLS & PRESETS
+        // ==========================================
+        function onManualTempChange(val) {
+            currentTemp = parseFloat(val);
+            document.getElementById('valTemp').textContent = `${currentTemp.toFixed(1)}°C`;
+        }
+
+        function onManualFpsChange(val) {
+            currentFps = parseFloat(val);
+            document.getElementById('valFps').textContent = `${Math.round(currentFps)} FPS`;
+        }
+
+        function onManualDrainChange(val) {
+            drainRate = parseFloat(val);
+            document.getElementById('valDrain').textContent = `${batteryPct}% · ${drainRate.toFixed(1)}%/min`;
+        }
+
+        function setPreset(type) {
+            if (type === 'cool') {
+                isSpikeSimulated = false;
+                currentTemp = 32.0;
+                currentFps = 60.0;
+                document.getElementById('sliderTemp').value = 32;
+                document.getElementById('sliderFps').value = 60;
+                alertPopup.classList.remove('visible');
+            } else if (type === 'warm') {
+                isSpikeSimulated = false;
+                currentTemp = 40.0;
+                currentFps = 57.0;
+                document.getElementById('sliderTemp').value = 40;
+                document.getElementById('sliderFps').value = 57;
+            } else if (type === 'spike') {
+                isSpikeSimulated = true;
+                currentTemp = 44.5;
+                currentFps = 42.0;
+                document.getElementById('sliderTemp').value = 44.5;
+                document.getElementById('sliderFps').value = 42;
+                alertPopup.classList.add('visible');
+            }
+            document.getElementById('valTemp').textContent = `${currentTemp.toFixed(1)}°C`;
+            document.getElementById('valFps').textContent = `${Math.round(currentFps)} FPS`;
+        }
+
+        function dismissAlert() {
+            alertPopup.classList.remove('visible');
+        }
+
+        function adjustSettingsFromAlert() {
+            alertPopup.classList.remove('visible');
+            setPreset('cool');
+            avoidedCount++;
+            alert('Settings Adjusted! Refresh rate capped to 90Hz & resolution lowered. Thermal stress relieved.');
+        }
+
+        function onStopSessionFromOverlay() {
+            switchPhoneScreen('report');
+        }
+
+        // ==========================================
+        // SCREEN SWITCHER & REPORT CARD RENDERING
+        // ==========================================
+        function switchPhoneScreen(screenName) {
+            document.querySelectorAll('.screen-view').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            if (screenName === 'game') {
+                document.getElementById('view-game').classList.add('active');
+                document.getElementById('tab-btn-game').classList.add('active');
+            } else {
+                document.getElementById('view-report').classList.add('active');
+                document.getElementById('tab-btn-report').classList.add('active');
+                renderReportCardData();
+            }
+        }
+
+        function renderReportCardData() {
+            const totalSec = Math.max(1, sessionSeconds);
+            const efficiency = Math.min(99.4, Math.max(45.0, (lowRiskSeconds / totalSec) * 100));
+            const durationMin = Math.max(1, Math.floor(sessionSeconds / 60));
+
+            document.getElementById('reportAvoidedCount').textContent = avoidedCount;
+            document.getElementById('reportSessionTime').textContent = `${durationMin} min`;
+            
+            const effEl = document.getElementById('reportEfficiency');
+            effEl.textContent = `${efficiency.toFixed(1)}%`;
+            effEl.className = 'stat-mini-val ' + (efficiency >= 85 ? 'efficiency-green' : (efficiency >= 60 ? 'efficiency-yellow' : 'efficiency-red'));
+
+            const maxTemp = telemetryHistory.length ? Math.max(...telemetryHistory.map(p => p.temp)) : 43.0;
+            const avgFps = telemetryHistory.length ? (telemetryHistory.reduce((a,b) => a + b.fps, 0) / telemetryHistory.length) : 58.0;
+
+            document.getElementById('reportMaxTemp').textContent = `Max: ${Math.round(maxTemp)}°C`;
+            document.getElementById('reportAvgFps').textContent = `Avg: ${Math.round(avgFps)} FPS`;
+
+            drawCanvasLineChart('canvasTempChart', telemetryHistory.map(p => p.temp), '#FFB300', 'rgba(255, 179, 0, 0.16)');
+            drawCanvasLineChart('canvasFpsChart', telemetryHistory.map(p => p.fps), '#00F0FF', 'rgba(0, 240, 255, 0.16)');
+        }
+
+        function drawCanvasLineChart(canvasId, dataPoints, strokeColor, fillColor) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = canvas.offsetWidth * dpr;
+            canvas.height = canvas.offsetHeight * dpr;
+            ctx.scale(dpr, dpr);
+
+            const w = canvas.offsetWidth;
+            const h = canvas.offsetHeight;
+            ctx.clearRect(0, 0, w, h);
+
+            const points = dataPoints.length >= 2 ? dataPoints : [58, 59, 60, 57, 54, 48, 56, 59, 60, 60];
+            const maxVal = Math.max(...points, 1);
+            const minVal = Math.max(0, Math.min(...points) - 5);
+            const range = Math.max(1, maxVal - minVal);
+
+            // Draw Subtle Gridlines
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, h * 0.5); ctx.lineTo(w, h * 0.5);
+            ctx.stroke();
+
+            ctx.beginPath();
+            points.forEach((val, i) => {
+                const x = (i / (points.length - 1)) * w;
+                const y = h - ((val - minVal) / range) * (h - 22) - 11;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+
+            // Glow Stroke
+            ctx.shadowColor = strokeColor;
+            ctx.shadowBlur = 8;
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+
+            // Area fill
+            ctx.shadowBlur = 0;
+            ctx.lineTo(w, h);
+            ctx.lineTo(0, h);
+            ctx.closePath();
+            ctx.fillStyle = fillColor;
+            ctx.fill();
+        }
+
+        function shareReportCard() {
+            alert('🛡️ Gaming Report Card PNG exported successfully! Ready for sharing.');
+        }
+
+        // ==========================================
+        // GAME CANVAS 60FPS BACKGROUND ANIMATION
+        // ==========================================
+        const gameCanvas = document.getElementById('gameCanvas');
+        const gctx = gameCanvas.getContext('2d');
+        let stars = [];
+
+        function initStars() {
+            gameCanvas.width = 390;
+            gameCanvas.height = 770;
+            stars = [];
+            for (let i = 0; i < 90; i++) {
+                stars.push({
+                    x: Math.random() * 390,
+                    y: Math.random() * 770,
+                    size: Math.random() * 2 + 0.8,
+                    speed: Math.random() * 3.5 + 1.2
+                });
+            }
+        }
+        initStars();
+
+        function renderGame() {
+            gctx.fillStyle = '#07080E';
+            gctx.fillRect(0, 0, 390, 770);
+
+            // Draw Stars
+            gctx.fillStyle = '#4A5568';
+            stars.forEach(s => {
+                s.y += s.speed;
+                if (s.y > 770) s.y = 0;
+                gctx.fillRect(s.x, s.y, s.size, s.size);
+            });
+
+            // Draw Cosmic Void Ship / Player
+            const time = Date.now() * 0.003;
+            const shipX = 195 + Math.sin(time) * 65;
+            const shipY = 570 + Math.cos(time * 1.5) * 15;
+
+            // Engine Trail
+            gctx.shadowColor = '#00F0FF';
+            gctx.shadowBlur = 12;
+            gctx.fillStyle = '#00F0FF';
+            gctx.beginPath();
+            gctx.arc(shipX, shipY + 18, 6 + Math.sin(time * 5) * 2, 0, Math.PI * 2);
+            gctx.fill();
+
+            // Ship Body
+            gctx.shadowColor = '#B026FF';
+            gctx.shadowBlur = 10;
+            gctx.fillStyle = '#B026FF';
+            gctx.beginPath();
+            gctx.moveTo(shipX, shipY - 22);
+            gctx.lineTo(shipX - 18, shipY + 16);
+            gctx.lineTo(shipX + 18, shipY + 16);
+            gctx.closePath();
+            gctx.fill();
+            gctx.shadowBlur = 0;
+
+            requestAnimationFrame(renderGame);
+        }
+        renderGame();
+    </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Thermal Guardian</string>
+    <string name="title_report_card">Gaming Report Card</string>
+    <string name="service_notification_channel_id">thermal_guardian_overlay</string>
+    <string name="service_notification_channel_name">Thermal Guardian Overlay</string>
+    <string name="service_notification_title">Thermal &amp; Performance Guardian Active</string>
+    <string name="service_notification_text">Monitoring FPS, Temperature &amp; Battery in real-time.</string>
+</resources>
