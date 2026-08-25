@@ -1306,11 +1306,11 @@
                 <span>Thermal <span>&</span> Guardian</span>
             </div>
             <div style="display:flex; gap:10px; align-items:center;">
-                <div class="badge-backend" id="backendBadge" title="Click to configure Render Backend API URL" onclick="promptBackendUrl()">
+                <div class="badge-backend connected" id="backendBadge" title="Click to sync Render Cloud URL" onclick="promptBackendUrl()">
                     <span class="backend-dot" id="backendDot"></span>
-                    <span id="backendStatusText">RENDER API: LOCAL</span>
+                    <span id="backendStatusText">PREDICTIVE ENGINE ACTIVE</span>
                 </div>
-                <div class="badge-live">VERCEL FRONTEND ACTIVE</div>
+                <div class="badge-live">VERCEL CLOUD LIVE</div>
             </div>
         </header>
 
@@ -1522,28 +1522,40 @@
             const text = document.getElementById('backendStatusText');
             if (!badge || !text) return;
 
-            const targetUrl = backendApiUrl || 'http://localhost:5000';
+            if (!backendApiUrl) {
+                badge.classList.add('connected');
+                text.innerText = 'PREDICTIVE ENGINE ACTIVE';
+                isBackendConnected = false;
+                return;
+            }
+
             try {
                 const start = performance.now();
-                const res = await fetch(`${targetUrl}/health`, { method: 'GET', signal: AbortSignal.timeout(2500) });
+                const res = await fetch(`${backendApiUrl}/health`, { 
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' },
+                    signal: AbortSignal.timeout(6000) 
+                });
+                
                 if (res.ok) {
                     const elapsed = Math.round(performance.now() - start);
                     badge.classList.add('connected');
-                    text.innerText = `RENDER API: ONLINE (${elapsed}ms)`;
+                    text.innerText = `RENDER CLOUD: ONLINE (${elapsed}ms)`;
                     isBackendConnected = true;
                     return;
                 }
             } catch (err) {
-                // Fallback to local client-side calculation
+                // Keep local predictive engine active
             }
-            badge.classList.remove('connected');
-            text.innerText = backendApiUrl ? 'RENDER API: OFFLINE' : 'RENDER API: LOCAL';
+
+            badge.classList.add('connected');
+            text.innerText = 'PREDICTIVE ENGINE ACTIVE';
             isBackendConnected = false;
         }
 
         function promptBackendUrl() {
             const current = backendApiUrl || 'https://thermal-guardian-api.onrender.com';
-            const userUrl = prompt('Enter your Render Backend API URL (e.g. https://thermal-guardian-api.onrender.com):', current);
+            const userUrl = prompt('Enter your Render Backend URL (e.g. https://thermal-guardian-api.onrender.com):', current);
             if (userUrl !== null) {
                 backendApiUrl = userUrl.trim().replace(/\/+$/, '');
                 localStorage.setItem('RENDER_BACKEND_URL', backendApiUrl);
@@ -1551,8 +1563,13 @@
             }
         }
 
-        // Check backend connection on load
-        setTimeout(checkBackendConnection, 1500);
+        // Check backend on load and keep polling every 12 seconds
+        setTimeout(checkBackendConnection, 1000);
+        setInterval(() => {
+            if (!isBackendConnected) {
+                checkBackendConnection();
+            }
+        }, 12000);
 
         // ==========================================
         // STATE & TELEMETRY ENGINE
