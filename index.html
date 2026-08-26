@@ -100,22 +100,24 @@
             backdrop-filter: blur(14px);
         }
 
-        /* Card Scanning Line Micro-Animation */
-        .app-header::before, .hud-card::before, .device-wrapper::before {
+        /* Card Scanning Line GPU Micro-Animation */
+        .app-header::before, .hud-card::before, .device-wrapper::before, .controls-panel::before {
             content: '';
             position: absolute;
             top: 0;
-            left: -100%;
-            width: 50%;
+            left: 0;
+            width: 40%;
             height: 2px;
             background: linear-gradient(90deg, transparent, var(--neon-cyan), var(--neon-magenta), transparent);
-            animation: scanLine 4s infinite ease-in-out;
+            animation: scanLineGpu 5s infinite ease-in-out;
             z-index: 2;
+            pointer-events: none;
+            will-change: transform;
         }
 
-        @keyframes scanLine {
-            0% { left: -50%; }
-            100% { left: 150%; }
+        @keyframes scanLineGpu {
+            0% { transform: translate3d(-120%, 0, 0); }
+            100% { transform: translate3d(350%, 0, 0); }
         }
 
         .brand-logo {
@@ -136,6 +138,7 @@
             height: 28px;
             fill: var(--neon-cyan);
             filter: drop-shadow(0 0 8px var(--neon-cyan));
+            flex-shrink: 0;
         }
 
         .brand-logo span span {
@@ -143,12 +146,18 @@
             text-shadow: 0 0 12px var(--neon-magenta-glow);
         }
 
+        .header-badges-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         .badge-live {
             font-family: 'Orbitron', monospace;
             background: rgba(0, 230, 118, 0.12);
             color: var(--neon-green);
             border: 1px solid rgba(0, 230, 118, 0.5);
-            padding: 5px 14px;
+            padding: 6px 14px;
             clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
             font-size: 11px;
             font-weight: 800;
@@ -157,6 +166,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            white-space: nowrap;
         }
 
         .badge-live::before {
@@ -167,6 +177,7 @@
             background: var(--neon-green);
             box-shadow: 0 0 8px var(--neon-green);
             animation: pulseDot 1.2s infinite alternate;
+            flex-shrink: 0;
         }
 
         .badge-backend {
@@ -174,7 +185,7 @@
             background: rgba(176, 38, 255, 0.12);
             color: var(--neon-magenta);
             border: 1px solid rgba(176, 38, 255, 0.5);
-            padding: 5px 12px;
+            padding: 6px 12px;
             clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
             font-size: 10px;
             font-weight: 800;
@@ -185,6 +196,7 @@
             gap: 6px;
             cursor: pointer;
             transition: all 0.2s ease;
+            white-space: nowrap;
         }
 
         .badge-backend:hover {
@@ -199,6 +211,7 @@
             background: var(--neon-magenta);
             box-shadow: 0 0 8px var(--neon-magenta);
             animation: pulseDot 1.2s infinite alternate;
+            flex-shrink: 0;
         }
 
         .badge-backend.connected {
@@ -225,15 +238,9 @@
             width: 100%;
             max-width: 1240px;
             display: grid;
-            grid-template-columns: 410px 1fr;
+            grid-template-columns: minmax(360px, 390px) 1fr;
             gap: 28px;
             align-items: start;
-        }
-
-        @media (max-width: 960px) {
-            .studio-container {
-                grid-template-columns: 1fr;
-            }
         }
 
         /* Tab Switcher - Esports HUD Brackets */
@@ -241,6 +248,7 @@
             display: flex;
             gap: 10px;
             margin-bottom: 14px;
+            width: 100%;
         }
 
         .tab-btn {
@@ -986,36 +994,46 @@
             position: fixed;
             top: 0;
             left: 0;
-            pointer-events: none;
+            margin: 0;
+            padding: 0;
+            pointer-events: none !important;
+            user-select: none !important;
             will-change: transform;
             contain: layout paint;
             transform: translate3d(-100px, -100px, 0);
+            transition: none !important; /* Eliminate all CSS transition lag on transform/position */
         }
 
         .custom-cursor-dot {
             width: 6px;
             height: 6px;
+            margin-left: -3px;
+            margin-top: -3px;
             background: var(--neon-cyan);
             border-radius: 50%;
-            z-index: 999999;
+            z-index: 999999999;
             box-shadow: 0 0 8px var(--neon-cyan);
         }
 
         .custom-cursor-ring {
             width: 26px;
             height: 26px;
+            margin-left: -13px;
+            margin-top: -13px;
             border: 1.5px solid var(--neon-cyan);
             border-radius: 50%;
-            z-index: 999998;
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.35);
-            transition: width 0.12s ease-out, height 0.12s ease-out, border-color 0.15s ease, box-shadow 0.15s ease;
+            z-index: 999999998;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
         }
 
         .custom-cursor-ring.active {
-            width: 38px;
-            height: 38px;
-            border-color: var(--neon-magenta);
-            box-shadow: 0 0 16px rgba(176, 38, 255, 0.6);
+            width: 36px;
+            height: 36px;
+            margin-left: -18px;
+            margin-top: -18px;
+            border-color: var(--neon-magenta) !important;
+            box-shadow: 0 0 16px rgba(176, 38, 255, 0.75) !important;
         }
 
         /* ==========================================
@@ -1494,6 +1512,360 @@
             text-shadow: 0 0 8px var(--neon-green-glow);
             display: none;
         }
+
+        /* ==========================================
+           RESPONSIVE BREAKPOINTS (Desktop / Tablet / Mobile)
+           ========================================== */
+
+        /* Disable custom cursor on touch devices */
+        @media (hover: none) or (pointer: coarse) {
+            .custom-cursor-dot, .custom-cursor-ring {
+                display: none !important;
+            }
+            body, button, input, select, .draggable-hud-pill {
+                cursor: auto !important;
+            }
+        }
+
+        /* Tablet Breakpoint (768px - 1024px) */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            body {
+                padding: 16px 12px;
+            }
+            .app-header {
+                padding: 14px 20px;
+                margin-bottom: 20px;
+            }
+            .studio-container {
+                grid-template-columns: 360px 1fr;
+                gap: 20px;
+            }
+            .device-wrapper {
+                width: 360px;
+                height: 710px;
+            }
+            .controls-panel {
+                padding: 20px;
+            }
+        }
+
+        /* Mobile Breakpoint (< 768px) */
+        @media (max-width: 767px) {
+            html, body {
+                overflow-x: hidden !important;
+                width: 100vw;
+                max-width: 100vw;
+            }
+
+            body {
+                padding: 10px 8px 30px 8px;
+            }
+
+            .main-dashboard-app {
+                width: 100%;
+                max-width: 100%;
+                padding: 0;
+            }
+
+            /* Stack Header */
+            .app-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+                padding: 12px 14px;
+                margin-bottom: 16px;
+                clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            }
+
+            .brand-logo {
+                font-size: 15px;
+                justify-content: center;
+                gap: 10px;
+            }
+
+            .brand-logo svg {
+                width: 22px;
+                height: 22px;
+            }
+
+            .header-badges-row {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                gap: 6px;
+                width: 100%;
+            }
+
+            .badge-live, .badge-backend {
+                flex: 1;
+                justify-content: center;
+                font-size: 9.5px;
+                padding: 6px 8px;
+                text-align: center;
+                letter-spacing: 0.5px;
+            }
+
+            /* Single-column Stack for Studio */
+            .studio-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .app-switch-tabs {
+                width: 100%;
+                max-width: min(390px, calc(100vw - 16px));
+                margin: 0 auto 10px auto;
+            }
+
+            .tab-btn {
+                padding: 10px 6px;
+                font-size: 11px;
+                letter-spacing: 0.5px;
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            /* Responsive Phone Frame */
+            .device-wrapper {
+                width: 100%;
+                max-width: min(390px, calc(100vw - 16px));
+                height: clamp(540px, 78vh, 690px);
+                border-width: 6px;
+                border-radius: 32px;
+                margin: 0 auto;
+                box-shadow: 0 10px 35px rgba(0,0,0,0.85);
+            }
+
+            .device-notch {
+                width: 88px;
+                height: 18px;
+                top: 8px;
+                border-radius: 8px;
+            }
+
+            .device-notch::after {
+                width: 32px;
+                height: 3px;
+            }
+
+            .screen-view {
+                padding: 34px 12px 14px 12px;
+            }
+
+            /* Draggable Pill HUD on Mobile */
+            .draggable-hud-pill {
+                padding: 5px 8px;
+                gap: 6px;
+                font-size: 10.5px;
+                left: 10px;
+                top: 38px;
+                max-width: calc(100% - 20px);
+                box-shadow: 0 0 15px rgba(0, 240, 255, 0.35);
+            }
+
+            .hud-game-label {
+                font-size: 9px;
+                max-width: 80px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .hud-temp, .hud-fps, .hud-battery {
+                font-size: 10.5px;
+            }
+
+            .hud-stop-btn {
+                width: 26px;
+                height: 26px;
+                min-width: 26px;
+            }
+
+            /* Controls Panel on Mobile */
+            .controls-panel {
+                padding: 16px 12px;
+                gap: 14px;
+                width: 100%;
+                clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+            }
+
+            .panel-section-title {
+                font-size: 13px;
+            }
+
+            .hud-card {
+                padding: 12px 14px;
+            }
+
+            .control-label-row {
+                font-size: 13px;
+                margin-bottom: 6px;
+            }
+
+            .control-value-badge {
+                font-size: 11.5px;
+            }
+
+            /* Sliders with accessible touch targets */
+            input[type="range"] {
+                height: 12px;
+                margin: 10px 0;
+                touch-action: pan-y;
+            }
+
+            input[type="range"]::-webkit-slider-thumb {
+                width: 26px;
+                height: 26px;
+            }
+
+            .preset-buttons {
+                gap: 6px;
+                margin-top: 10px;
+            }
+
+            .btn-preset {
+                padding: 10px 4px;
+                font-size: 10px;
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                touch-action: manipulation;
+            }
+
+            .live-log-box {
+                max-height: 140px;
+                font-size: 10px;
+                padding: 10px;
+                line-height: 17px;
+            }
+
+            /* Report Screen items on Mobile */
+            .report-title {
+                font-size: 14px;
+            }
+
+            .stat-highlight-card {
+                padding: 12px;
+                gap: 10px;
+            }
+
+            .teal-square-badge {
+                width: 42px;
+                height: 42px;
+                font-size: 19px;
+            }
+
+            .stat-highlight-text {
+                font-size: 13px;
+                line-height: 17px;
+            }
+
+            .chart-card {
+                padding: 10px 12px;
+            }
+
+            .chart-label {
+                font-size: 9.5px;
+            }
+
+            .chart-max-temp, .chart-avg-fps {
+                font-size: 11.5px;
+            }
+
+            .canvas-graph {
+                height: 75px;
+            }
+
+            .stats-grid-row {
+                gap: 8px;
+                margin-bottom: 12px;
+            }
+
+            .stat-mini-box {
+                padding: 10px 12px;
+            }
+
+            .stat-mini-label {
+                font-size: 8.5px;
+            }
+
+            .stat-mini-val {
+                font-size: 16px;
+            }
+
+            .btn-share-report {
+                height: 46px;
+                font-size: 13px;
+                min-height: 44px;
+            }
+
+            /* Mobile Modals */
+            .hud-modal-overlay {
+                padding: 12px;
+            }
+
+            .hud-modal-card {
+                padding: 22px 14px 18px 14px;
+                max-width: 100%;
+            }
+
+            .modal-title {
+                font-size: 14px;
+                letter-spacing: 1px;
+            }
+
+            .modal-body {
+                font-size: 12.5px;
+                margin-bottom: 16px;
+            }
+
+            .modal-stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+            }
+
+            .modal-stat-box {
+                padding: 8px 10px;
+            }
+
+            .modal-stat-label {
+                font-size: 8px;
+            }
+
+            .modal-stat-val {
+                font-size: 12px;
+            }
+
+            .btn-modal-primary, .btn-modal-secondary {
+                padding: 11px 12px;
+                font-size: 11px;
+                min-height: 44px;
+            }
+
+            /* Splash Screen on Mobile */
+            .splash-iqoo-text {
+                font-size: 48px;
+                letter-spacing: 4px;
+            }
+
+            .splash-accent-line {
+                max-width: 200px;
+            }
+
+            .splash-title {
+                font-size: 11px;
+                letter-spacing: 2px;
+            }
+
+            .splash-sub-status {
+                font-size: 9.5px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1555,7 +1927,7 @@
                 <svg viewBox="0 0 24 24"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm0 4a4.5 4.5 0 0 1 4.5 4.5c0 2.12-1.45 3.9-3.4 4.36L12 18l-1.1-3.14A4.502 4.502 0 0 1 7.5 10.5 4.5 4.5 0 0 1 12 6z"/></svg>
                 <span>Thermal <span>&</span> Guardian</span>
             </div>
-            <div style="display:flex; gap:10px; align-items:center;">
+            <div class="header-badges-row">
                 <div class="badge-backend connected" id="backendBadge" title="Click to sync Render Cloud URL" onclick="promptBackendUrl()">
                     <span class="backend-dot" id="backendDot"></span>
                     <span id="backendStatusText">PREDICTIVE ENGINE ACTIVE</span>
@@ -1744,37 +2116,59 @@
         });
 
         // ==========================================
-        // GPU-ACCELERATED ZERO-LAG CYBER CURSOR
+        // HARDWARE-ACCELERATED ZERO-LAG CYBER CURSOR (Continuous rAF loop + mathematical lerp)
         // ==========================================
+        const isTouchDevice = window.matchMedia('(hover: none) or (pointer: coarse)').matches;
         const cursorDot = document.getElementById('cursorDot');
         const cursorRing = document.getElementById('cursorRing');
-        let mouseX = -100, mouseY = -100;
+        let targetX = -100, targetY = -100;
         let ringX = -100, ringY = -100;
+        let isCursorActive = false;
 
-        window.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-        }, { passive: true });
+        if (!isTouchDevice && cursorDot && cursorRing) {
+            // 1. Store latest mouse coordinates on raw mousemove (no DOM styling in event handler)
+            window.addEventListener('mousemove', (e) => {
+                targetX = e.clientX;
+                targetY = e.clientY;
+                if (!isCursorActive) {
+                    ringX = targetX;
+                    ringY = targetY;
+                    isCursorActive = true;
+                }
+            }, { passive: true });
 
-        function renderCursor() {
-            if (cursorDot && cursorRing) {
-                cursorDot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0) translate(-50%, -50%)`;
-                ringX += (mouseX - ringX) * 0.45;
-                ringY += (mouseY - ringY) * 0.45;
-                cursorRing.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
+            // 2. Single continuous requestAnimationFrame loop (GPU Compositor promoted)
+            function cursorRenderLoop() {
+                if (isCursorActive) {
+                    // Instant 1:1 hardware match for center cyan dot (zero lag)
+                    cursorDot.style.transform = `translate3d(${targetX}px, ${targetY}px, 0)`;
+
+                    // Mathematical linear interpolation (lerp) for smooth trailing cyber ring
+                    ringX += (targetX - ringX) * 0.45;
+                    ringY += (targetY - ringY) * 0.45;
+                    cursorRing.style.transform = `translate3d(${ringX}px, ${ringY}px, 0)`;
+                }
+                requestAnimationFrame(cursorRenderLoop);
             }
-            requestAnimationFrame(renderCursor);
+            requestAnimationFrame(cursorRenderLoop);
+
+            // 3. Global Delegated Hover (Zero DOM querying overhead)
+            document.addEventListener('mouseover', (e) => {
+                if (e.target.closest('button, input, a, .tab-btn, .hud-card, .draggable-hud-pill, .stat-highlight-card, .btn-preset, .badge-backend')) {
+                    cursorRing.classList.add('active');
+                } else {
+                    cursorRing.classList.remove('active');
+                }
+            }, { passive: true });
+
+            // Hide when pointer leaves browser window
+            document.addEventListener('mouseleave', () => {
+                targetX = -100;
+                targetY = -100;
+                ringX = -100;
+                ringY = -100;
+            });
         }
-        requestAnimationFrame(renderCursor);
-
-        // Global Delegated Hover (Zero DOM querying overhead)
-        document.addEventListener('mouseover', (e) => {
-            if (e.target.closest('button, input, a, .tab-btn, .hud-card, .draggable-hud-pill, .stat-highlight-card, .btn-preset, .badge-backend')) {
-                cursorRing.classList.add('active');
-            } else {
-                cursorRing.classList.remove('active');
-            }
-        }, { passive: true });
 
         // ==========================================
         // CUSTOM THEMED ESPORTS HUD MODAL CONTROLLER
@@ -1990,13 +2384,11 @@
         const logBox = document.getElementById('logBox');
         const riskBadge = document.getElementById('riskBadge');
 
-        // Draggable HUD Pill with RequestAnimationFrame
+        // Draggable HUD Pill with Responsive Screen Bounds
         const hudPill = document.getElementById('hudPill');
         let isDragging = false;
         let dragOffsetX = 0;
         let dragOffsetY = 0;
-        let hudTargetX = 14;
-        let hudTargetY = 48;
 
         hudPill.addEventListener('mousedown', (e) => {
             if (e.target.closest('button')) return;
@@ -2007,15 +2399,18 @@
 
         window.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
-            hudTargetX = Math.max(8, Math.min(e.clientX - dragOffsetX, 390 - hudPill.offsetWidth - 8));
-            hudTargetY = Math.max(38, Math.min(e.clientY - dragOffsetY, 750 - hudPill.offsetHeight - 8));
+            const container = hudPill.parentElement;
+            const maxBoundX = (container ? container.offsetWidth : 390) - hudPill.offsetWidth - 8;
+            const maxBoundY = (container ? container.offsetHeight : 750) - hudPill.offsetHeight - 8;
+            const hudTargetX = Math.max(8, Math.min(e.clientX - dragOffsetX, maxBoundX));
+            const hudTargetY = Math.max(34, Math.min(e.clientY - dragOffsetY, maxBoundY));
             hudPill.style.left = hudTargetX + 'px';
             hudPill.style.top = hudTargetY + 'px';
         }, { passive: true });
 
         window.addEventListener('mouseup', () => { isDragging = false; });
 
-        // Touch drag support
+        // Touch drag support on Mobile
         hudPill.addEventListener('touchstart', (e) => {
             if (e.target.closest('button')) return;
             isDragging = true;
@@ -2027,8 +2422,11 @@
         window.addEventListener('touchmove', (e) => {
             if (!isDragging) return;
             const touch = e.touches[0];
-            hudTargetX = Math.max(8, Math.min(touch.clientX - dragOffsetX, 390 - hudPill.offsetWidth - 8));
-            hudTargetY = Math.max(38, Math.min(touch.clientY - dragOffsetY, 750 - hudPill.offsetHeight - 8));
+            const container = hudPill.parentElement;
+            const maxBoundX = (container ? container.offsetWidth : 390) - hudPill.offsetWidth - 8;
+            const maxBoundY = (container ? container.offsetHeight : 750) - hudPill.offsetHeight - 8;
+            const hudTargetX = Math.max(8, Math.min(touch.clientX - dragOffsetX, maxBoundX));
+            const hudTargetY = Math.max(34, Math.min(touch.clientY - dragOffsetY, maxBoundY));
             hudPill.style.left = hudTargetX + 'px';
             hudPill.style.top = hudTargetY + 'px';
         }, { passive: true });
@@ -2090,7 +2488,7 @@
                 lowRiskSeconds++;
             }
 
-            // Update HUD Pill (Direct text update)
+            // Update HUD Pill
             hudTempText.textContent = `${Math.round(currentTemp)}°C`;
             hudFpsText.textContent = `${Math.round(currentFps)} FPS`;
             hudBatteryText.textContent = `${batteryPct}%`;
@@ -2206,6 +2604,7 @@
 
         function drawCanvasLineChart(canvasId, dataPoints, strokeColor, fillColor) {
             const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
             const ctx = canvas.getContext('2d');
             const dpr = window.devicePixelRatio || 1;
             canvas.width = canvas.offsetWidth * dpr;
@@ -2236,16 +2635,13 @@
                 else ctx.lineTo(x, y);
             });
 
-            // Glow Stroke
-            ctx.shadowColor = strokeColor;
-            ctx.shadowBlur = 8;
+            // Stroke line
             ctx.strokeStyle = strokeColor;
             ctx.lineWidth = 2.5;
             ctx.lineCap = 'round';
             ctx.stroke();
 
             // Area fill
-            ctx.shadowBlur = 0;
             ctx.lineTo(w, h);
             ctx.lineTo(0, h);
             ctx.closePath();
@@ -2254,67 +2650,72 @@
         }
 
         // ==========================================
-        // GAME CANVAS 60FPS BACKGROUND ANIMATION
+        // OPTIMIZED GAME CANVAS 60FPS BACKGROUND ANIMATION
         // ==========================================
         const gameCanvas = document.getElementById('gameCanvas');
-        const gctx = gameCanvas.getContext('2d');
+        const gctx = gameCanvas ? gameCanvas.getContext('2d', { alpha: false }) : null;
         let stars = [];
+        let canvasW = 390;
+        let canvasH = 770;
 
-        function initStars() {
-            gameCanvas.width = 390;
-            gameCanvas.height = 770;
+        function resizeGameCanvas() {
+            if (!gameCanvas || !gameCanvas.parentElement) return;
+            canvasW = gameCanvas.parentElement.offsetWidth || 390;
+            canvasH = gameCanvas.parentElement.offsetHeight || 770;
+            gameCanvas.width = canvasW;
+            gameCanvas.height = canvasH;
+            
             stars = [];
-            for (let i = 0; i < 90; i++) {
+            const starCount = isTouchDevice ? 40 : 70;
+            for (let i = 0; i < starCount; i++) {
                 stars.push({
-                    x: Math.random() * 390,
-                    y: Math.random() * 770,
-                    size: Math.random() * 2 + 0.8,
-                    speed: Math.random() * 3.5 + 1.2
+                    x: Math.random() * canvasW,
+                    y: Math.random() * canvasH,
+                    size: Math.random() * 1.8 + 0.6,
+                    speed: Math.random() * 2.5 + 1.0
                 });
             }
         }
-        initStars();
+        resizeGameCanvas();
+        window.addEventListener('resize', resizeGameCanvas, { passive: true });
 
         function renderGame() {
+            if (!gctx) return;
             gctx.fillStyle = '#07080E';
-            gctx.fillRect(0, 0, 390, 770);
+            gctx.fillRect(0, 0, canvasW, canvasH);
 
             // Draw Stars
             gctx.fillStyle = '#4A5568';
-            stars.forEach(s => {
+            for (let i = 0; i < stars.length; i++) {
+                const s = stars[i];
                 s.y += s.speed;
-                if (s.y > 770) s.y = 0;
+                if (s.y > canvasH) s.y = 0;
                 gctx.fillRect(s.x, s.y, s.size, s.size);
-            });
+            }
 
-            // Draw Cosmic Void Ship / Player
-            const time = Date.now() * 0.003;
-            const shipX = 195 + Math.sin(time) * 65;
-            const shipY = 570 + Math.cos(time * 1.5) * 15;
+            // Draw Cosmic Void Ship
+            const time = Date.now() * 0.0025;
+            const shipX = (canvasW * 0.5) + Math.sin(time) * (canvasW * 0.22);
+            const shipY = (canvasH * 0.74) + Math.cos(time * 1.5) * 12;
 
             // Engine Trail
-            gctx.shadowColor = '#00F0FF';
-            gctx.shadowBlur = 10;
             gctx.fillStyle = '#00F0FF';
             gctx.beginPath();
-            gctx.arc(shipX, shipY + 18, 6 + Math.sin(time * 5) * 2, 0, Math.PI * 2);
+            gctx.arc(shipX, shipY + 16, 5 + Math.sin(time * 5) * 1.5, 0, Math.PI * 2);
             gctx.fill();
 
             // Ship Body
-            gctx.shadowColor = '#B026FF';
-            gctx.shadowBlur = 8;
             gctx.fillStyle = '#B026FF';
             gctx.beginPath();
-            gctx.moveTo(shipX, shipY - 22);
-            gctx.lineTo(shipX - 18, shipY + 16);
-            gctx.lineTo(shipX + 18, shipY + 16);
+            gctx.moveTo(shipX, shipY - 18);
+            gctx.lineTo(shipX - 15, shipY + 14);
+            gctx.lineTo(shipX + 15, shipY + 14);
             gctx.closePath();
             gctx.fill();
-            gctx.shadowBlur = 0;
 
             requestAnimationFrame(renderGame);
         }
-        renderGame();
+        if (gctx) renderGame();
     </script>
 </body>
 </html>
