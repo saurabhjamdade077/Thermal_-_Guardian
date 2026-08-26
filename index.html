@@ -930,6 +930,71 @@
             box-shadow: 0 0 15px rgba(176, 38, 255, 0.35);
         }
 
+        /* Real-Time Battery Source Badge & Toggles */
+        .battery-source-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 9.5px;
+            font-weight: 700;
+            color: var(--neon-green);
+            background: rgba(0, 230, 118, 0.1);
+            border: 1px solid rgba(0, 230, 118, 0.4);
+            padding: 3px 8px;
+            clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            letter-spacing: 0.5px;
+        }
+
+        .battery-source-badge.charging {
+            color: var(--neon-cyan);
+            background: rgba(0, 240, 255, 0.12);
+            border-color: rgba(0, 240, 255, 0.5);
+            text-shadow: 0 0 8px var(--neon-cyan-glow);
+        }
+
+        .battery-source-badge.simulated {
+            color: var(--neon-magenta);
+            background: rgba(176, 38, 255, 0.1);
+            border-color: rgba(176, 38, 255, 0.4);
+        }
+
+        .battery-status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--neon-green);
+            box-shadow: 0 0 6px var(--neon-green);
+        }
+
+        .battery-source-badge.charging .battery-status-dot {
+            background: var(--neon-cyan);
+            box-shadow: 0 0 8px var(--neon-cyan);
+        }
+
+        .battery-source-badge.simulated .battery-status-dot {
+            background: var(--neon-magenta);
+            box-shadow: 0 0 6px var(--neon-magenta);
+        }
+
+        .btn-battery-toggle {
+            background: var(--surface-inner);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 9.5px;
+            font-weight: 700;
+            padding: 4px 8px;
+            cursor: pointer;
+            clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
+            transition: all 0.2s ease;
+        }
+
+        .btn-battery-toggle:hover {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+        }
+
         /* Live Terminal / Predictor Engine Log */
         .live-log-box {
             background: var(--surface-inner);
@@ -2071,13 +2136,42 @@
                 <input type="range" id="sliderFps" min="20" max="120" step="1" value="60" oninput="onManualFpsChange(this.value)">
             </div>
 
-            <!-- Battery & Drain -->
+            <!-- Battery & Drain (Real-Time Hardware + Simulation Mode) -->
             <div class="hud-card">
                 <div class="control-label-row">
-                    <span>Battery Level & Drain Rate</span>
-                    <span class="control-value-badge magenta" id="valDrain">82% · 0.3%/min</span>
+                    <span>Battery & Drain Engine</span>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span class="control-value-badge magenta" id="valBatteryLevel">82%</span>
+                        <span class="control-value-badge" id="valDrain">0.3%/min</span>
+                    </div>
                 </div>
-                <input type="range" id="sliderDrain" min="0.1" max="2.5" step="0.1" value="0.3" oninput="onManualDrainChange(this.value)">
+
+                <!-- Live Hardware Source Status & Toggle -->
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <div class="battery-source-badge" id="batterySourceBadge">
+                        <span class="battery-status-dot" id="batteryStatusDot"></span>
+                        <span id="batterySourceText">DEVICE BATTERY SYNCED</span>
+                    </div>
+                    <button class="btn-battery-toggle" id="btnBatteryToggle" onclick="toggleBatteryMode()">⚡ REAL DEVICE</button>
+                </div>
+
+                <!-- Battery Level Slider (1% - 100%) -->
+                <div style="margin-bottom:10px;">
+                    <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-bottom:2px; font-family:'Orbitron', monospace;">
+                        <span>LEVEL SIMULATION</span>
+                        <span id="labelBatteryPct" style="color:var(--neon-magenta); font-weight:700;">82%</span>
+                    </div>
+                    <input type="range" id="sliderBattery" min="1" max="100" step="1" value="82" oninput="onManualBatteryLevelChange(this.value)">
+                </div>
+
+                <!-- Drain Rate Slider (0.1%/min - 3.0%/min) -->
+                <div>
+                    <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-bottom:2px; font-family:'Orbitron', monospace;">
+                        <span>DISCHARGE DRAIN RATE</span>
+                        <span id="labelDrainRate" style="color:var(--neon-cyan); font-weight:700;">0.3%/min</span>
+                    </div>
+                    <input type="range" id="sliderDrain" min="0.1" max="3.0" step="0.1" value="0.3" oninput="onManualDrainChange(this.value)">
+                </div>
             </div>
 
             <!-- Live Engine Log Box -->
@@ -2260,7 +2354,11 @@
                             <div class="modal-stat-val green">${avoidedCount} Avoided</div>
                         </div>
                         <div class="modal-stat-box">
-                            <div class="modal-stat-label">MAX TEMP / FPS</div>
+                            <div class="modal-stat-label">BATTERY / DRAIN</div>
+                            <div class="modal-stat-val magenta">${batteryPct}% · ${isCharging ? '⚡ CHARGING' : drainRate.toFixed(1) + '%/m'}</div>
+                        </div>
+                        <div class="modal-stat-box" style="grid-column: span 2;">
+                            <div class="modal-stat-label">PEAK TEMP / AVG FPS</div>
                             <div class="modal-stat-val amber">${Math.round(maxTemp)}°C · ${Math.round(avgFps)} FPS</div>
                         </div>
                     </div>
@@ -2361,12 +2459,139 @@
         }, 15000);
 
         // ==========================================
+        // REAL-TIME HARDWARE & SIMULATOR BATTERY ENGINE
+        // ==========================================
+        let isHardwareBatteryMode = false;
+        let hardwareBattery = null;
+        let batteryPct = 82;
+        let batteryFraction = 82.0;
+        let isCharging = false;
+        let drainRate = 0.3; // % per min
+
+        async function initBatteryEngine() {
+            if ('getBattery' in navigator) {
+                try {
+                    hardwareBattery = await navigator.getBattery();
+                    isHardwareBatteryMode = true;
+                    updateFromHardwareBattery();
+
+                    hardwareBattery.addEventListener('levelchange', () => {
+                        if (isHardwareBatteryMode) updateFromHardwareBattery();
+                    });
+                    hardwareBattery.addEventListener('chargingchange', () => {
+                        if (isHardwareBatteryMode) updateFromHardwareBattery();
+                    });
+                    hardwareBattery.addEventListener('dischargingtimechange', () => {
+                        if (isHardwareBatteryMode) updateFromHardwareBattery();
+                    });
+                } catch (err) {
+                    setSimulatorBatteryMode();
+                }
+            } else {
+                setSimulatorBatteryMode();
+            }
+        }
+
+        function updateFromHardwareBattery() {
+            if (!hardwareBattery) return;
+            batteryPct = Math.max(1, Math.min(100, Math.round(hardwareBattery.level * 100)));
+            batteryFraction = batteryPct;
+            isCharging = hardwareBattery.charging;
+
+            // Calculate discharge velocity if dischargingTime is available
+            if (!isCharging && hardwareBattery.dischargingTime && isFinite(hardwareBattery.dischargingTime)) {
+                const minRemaining = hardwareBattery.dischargingTime / 60;
+                if (minRemaining > 0) {
+                    drainRate = Math.max(0.1, Math.min(3.0, batteryPct / minRemaining));
+                }
+            } else if (isCharging) {
+                drainRate = 0.0;
+            }
+
+            updateBatteryUI();
+        }
+
+        function setSimulatorBatteryMode() {
+            isHardwareBatteryMode = false;
+            updateBatteryUI();
+        }
+
+        function toggleBatteryMode() {
+            if (!hardwareBattery && !isHardwareBatteryMode) {
+                if ('getBattery' in navigator) {
+                    initBatteryEngine();
+                    return;
+                }
+            }
+            isHardwareBatteryMode = !isHardwareBatteryMode;
+            if (isHardwareBatteryMode && hardwareBattery) {
+                updateFromHardwareBattery();
+            } else {
+                updateBatteryUI();
+            }
+        }
+
+        function updateBatteryUI() {
+            const badge = document.getElementById('batterySourceBadge');
+            const badgeText = document.getElementById('batterySourceText');
+            const toggleBtn = document.getElementById('btnBatteryToggle');
+            const valLevel = document.getElementById('valBatteryLevel');
+            const valDrain = document.getElementById('valDrain');
+            const labelPct = document.getElementById('labelBatteryPct');
+            const labelDrain = document.getElementById('labelDrainRate');
+            const sliderBat = document.getElementById('sliderBattery');
+            const sliderDr = document.getElementById('sliderDrain');
+            const hudBatText = document.getElementById('hudBatteryText');
+
+            if (isHardwareBatteryMode && hardwareBattery) {
+                if (badge) {
+                    badge.className = isCharging ? 'battery-source-badge charging' : 'battery-source-badge';
+                    badgeText.innerText = isCharging ? '⚡ HARDWARE: CHARGING' : '🔋 HARDWARE BATTERY SYNCED';
+                }
+                if (toggleBtn) {
+                    toggleBtn.innerText = 'SWITCH TO SIMULATOR';
+                    toggleBtn.style.color = 'var(--neon-green)';
+                }
+                if (sliderBat) sliderBat.disabled = true;
+            } else {
+                if (badge) {
+                    badge.className = 'battery-source-badge simulated';
+                    badgeText.innerText = '🎛️ SIMULATOR DRAIN ACTIVE';
+                }
+                if (toggleBtn) {
+                    toggleBtn.innerText = hardwareBattery ? '⚡ SYNC HARDWARE' : '🎛️ SIMULATOR';
+                    toggleBtn.style.color = 'var(--text-secondary)';
+                }
+                if (sliderBat) sliderBat.disabled = false;
+            }
+
+            if (valLevel) valLevel.innerText = `${batteryPct}%${isCharging ? ' ⚡' : ''}`;
+            if (valDrain) valDrain.innerText = isCharging ? 'CHARGING' : `${drainRate.toFixed(1)}%/min`;
+            if (labelPct) labelPct.innerText = `${batteryPct}%`;
+            if (labelDrain) labelDrain.innerText = `${drainRate.toFixed(1)}%/min`;
+            if (sliderBat) sliderBat.value = batteryPct;
+            if (sliderDr) sliderDr.value = drainRate;
+
+            if (hudBatText) {
+                hudBatText.innerHTML = isCharging ? `⚡ ${batteryPct}%` : `${batteryPct}%`;
+                if (batteryPct <= 20) {
+                    hudBatText.style.color = 'var(--thermal-crimson)';
+                    hudBatText.style.textShadow = '0 0 10px var(--thermal-crimson-glow)';
+                } else {
+                    hudBatText.style.color = 'var(--neon-magenta)';
+                    hudBatText.style.textShadow = '0 0 8px var(--neon-magenta-glow)';
+                }
+            }
+        }
+
+        // Initialize Real-Time Battery API on load
+        setTimeout(initBatteryEngine, 800);
+
+        // ==========================================
         // STATE & TELEMETRY ENGINE
         // ==========================================
         let currentTemp = 36.0;
         let currentFps = 60.0;
-        let batteryPct = 82;
-        let drainRate = 0.3;
         let sessionSeconds = 0;
         let lowRiskSeconds = 0;
         let avoidedCount = 3;
@@ -2444,11 +2669,19 @@
                 currentFps = Math.max(55, Math.min(60, currentFps + (Math.random() * 1.6 - 0.8)));
             }
 
+            // Real-time battery dynamic discharge in simulator mode
+            if (!isHardwareBatteryMode && !isCharging) {
+                batteryFraction = Math.max(1, batteryFraction - (drainRate / 60));
+                batteryPct = Math.round(batteryFraction);
+                updateBatteryUI();
+            }
+
             // Store Telemetry point
             telemetryHistory.push({
                 time: sessionSeconds,
                 temp: currentTemp,
-                fps: currentFps
+                fps: currentFps,
+                battery: batteryPct
             });
             if (telemetryHistory.length > 45) telemetryHistory.shift();
 
@@ -2461,20 +2694,21 @@
             }
 
             // Evaluate Risk Scoring Logic
-            const isHighTemp = currentTemp >= 43.5 || (currentTemp >= 41.5 && slopePer10s >= 0.6 && currentFps < 55);
-            const isMedTemp = (currentTemp >= 39.0 && slopePer10s >= 0.3) || currentFps < 52;
+            const isCriticalBattery = batteryPct <= 15;
+            const isHighTemp = currentTemp >= 43.5 || (currentTemp >= 41.5 && slopePer10s >= 0.6 && currentFps < 55) || (isCriticalBattery && currentTemp >= 41.0);
+            const isMedTemp = (currentTemp >= 39.0 && slopePer10s >= 0.3) || currentFps < 52 || isCriticalBattery;
 
             if (isHighTemp) {
                 currentRisk = 'HIGH';
                 hudDot.className = 'hud-dot pulsing-red';
-                riskBadge.textContent = 'HIGH RISK (THROTTLING)';
+                riskBadge.textContent = isCriticalBattery ? 'HIGH RISK (POWER THROTTLING)' : 'HIGH RISK (THROTTLING)';
                 riskBadge.style.color = 'var(--thermal-crimson)';
                 riskBadge.style.textShadow = '0 0 10px var(--thermal-crimson-glow)';
                 alertPopup.classList.add('visible');
             } else if (isMedTemp) {
                 currentRisk = 'MEDIUM';
                 hudDot.className = 'hud-dot pulsing-amber';
-                riskBadge.textContent = 'MEDIUM RISK';
+                riskBadge.textContent = isCriticalBattery ? 'MED RISK (LOW BATTERY)' : 'MEDIUM RISK';
                 riskBadge.style.color = 'var(--electric-amber)';
                 riskBadge.style.textShadow = '0 0 10px var(--electric-amber-glow)';
             } else {
@@ -2491,12 +2725,11 @@
             // Update HUD Pill
             hudTempText.textContent = `${Math.round(currentTemp)}°C`;
             hudFpsText.textContent = `${Math.round(currentFps)} FPS`;
-            hudBatteryText.textContent = `${batteryPct}%`;
 
             // Append to Log Box (Capped to max 12 entries to eliminate DOM lag)
             const logEntry = document.createElement('div');
             logEntry.className = `log-entry ${currentRisk.toLowerCase()}`;
-            logEntry.textContent = `[${formatTime(sessionSeconds)}] Temp: ${currentTemp.toFixed(1)}°C · FPS: ${Math.round(currentFps)} · Slope: ${slopePer10s > 0 ? '+' : ''}${slopePer10s.toFixed(2)}°C/10s -> ${currentRisk}`;
+            logEntry.textContent = `[${formatTime(sessionSeconds)}] Temp: ${currentTemp.toFixed(1)}°C · FPS: ${Math.round(currentFps)} · Bat: ${batteryPct}%${isCharging ? '⚡' : ''} · Slope: ${slopePer10s > 0 ? '+' : ''}${slopePer10s.toFixed(2)}°C/10s -> ${currentRisk}`;
             logBox.appendChild(logEntry);
             while (logBox.children.length > 12) {
                 logBox.removeChild(logBox.firstChild);
@@ -2524,9 +2757,16 @@
             document.getElementById('valFps').textContent = `${Math.round(currentFps)} FPS`;
         }
 
+        function onManualBatteryLevelChange(val) {
+            isHardwareBatteryMode = false;
+            batteryPct = Math.max(1, Math.min(100, parseInt(val)));
+            batteryFraction = batteryPct;
+            updateBatteryUI();
+        }
+
         function onManualDrainChange(val) {
             drainRate = parseFloat(val);
-            document.getElementById('valDrain').textContent = `${batteryPct}% · ${drainRate.toFixed(1)}%/min`;
+            updateBatteryUI();
         }
 
         function setPreset(type) {
